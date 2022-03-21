@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "webds_connection",
+  "description": "webds_connection settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
