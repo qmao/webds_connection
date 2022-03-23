@@ -20,7 +20,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 
 import { ThemeProvider } from "@mui/material/styles";
-import webdsTheme from './webds_theme';
+import { WebDSService } from '@webds/service';
 
 const I2C_ADDR_WIDTH = 150
 const SPEED_WIDTH = 150
@@ -193,7 +193,7 @@ function SelectSpiSpeed(
 
 type SeverityType = 'error' | 'info' | 'success' | 'warning';
 
-export default function ConnectionWidget()
+export default function ConnectionWidget(props: any)
 {
     //const context = useContext(UserContext);
     const [interfaces, setInterfaces] = React.useState([]);
@@ -428,6 +428,8 @@ export default function ConnectionWidget()
             })
     }
 
+    const webdsTheme = props.service.ui.getWebDSTheme();
+
     return (
         <div>
             <ThemeProvider theme={webdsTheme}>
@@ -527,12 +529,14 @@ export default function ConnectionWidget()
 * A Counter Lumino Widget that wraps a CounterComponent.
 */
 export class ShellWidget extends ReactWidget {
+    service: WebDSService;
     /**
     * Constructs a new CounterWidget.
     */
-    constructor() {
+    constructor(service: WebDSService) {
         super();
         this.addClass('content-widget');
+        this.service = service
         console.log("TabPanelUiWidget is created!!!");
     }
 
@@ -541,6 +545,6 @@ export class ShellWidget extends ReactWidget {
     }
 
     render(): JSX.Element {
-        return <ConnectionWidget/>;
+        return <ConnectionWidget service={this.service}/>;
     }
 }
