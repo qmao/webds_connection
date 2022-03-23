@@ -24,7 +24,7 @@ import { WebDSService } from '@webds/service';
 
 const I2C_ADDR_WIDTH = 150
 const SPEED_WIDTH = 150
-const SPEED_AUTO_SCAN = 0
+const SPEED_AUTO_SCAN = '0'
 const I2C_ADDR_AUTO_SCAN = '128'
 const SPI_MODE_AUTO_SCAN = -1
 
@@ -160,7 +160,7 @@ function SelectI2cAddr(
 
 function SelectSpiSpeed(
     props: {
-        speed: number;
+        speed: string;
         error: boolean;
         handleChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     }) {
@@ -180,7 +180,6 @@ function SelectSpiSpeed(
                 value={props.speed}
                 onChange={props.handleChange}
                 error={props.error}
-                type="number"
                 size="small"
                 sx={{
                     width: SPEED_WIDTH,
@@ -206,7 +205,7 @@ export default function ConnectionWidget(props: any)
     const [addr, setAddr] = React.useState<string>('30');
     const [addrError, setAddrError] = React.useState(false);
 
-    const [speed, setSpeed] = React.useState<number>(SPEED_AUTO_SCAN);
+    const [speed, setSpeed] = React.useState<string>(SPEED_AUTO_SCAN);
     const [speedError, setSpeedError] = useState(false);
 
     const [isAlert, setAlert] = useState(false);
@@ -215,7 +214,6 @@ export default function ConnectionWidget(props: any)
 
     const [info, setInfo] = useState<string[]>([]);
     const [load, setLoad] = React.useState(false);
-
 
     const context = useContext(UserContext);
 
@@ -279,7 +277,7 @@ export default function ConnectionWidget(props: any)
 
         let addr_num = Number(addr);
 
-        if (isNaN(addr_num)) {
+        if (isNaN(addr_num) || addr == '') {
             setAddrError(true);
         }
         else {
@@ -297,14 +295,21 @@ export default function ConnectionWidget(props: any)
         console.log("[speed]");
         console.log(speed);
 
-        if (speed == SPEED_AUTO_SCAN) {
-            context.speed = null;
+        let speed_num = Number(speed);
+
+        if (isNaN(speed_num) || speed == '') {
+            setSpeedError(true);
         }
         else {
-            context.speed = speed;
+            if (speed == SPEED_AUTO_SCAN) {
+                context.speed = null;
+            }
+            else {
+                context.speed = speed;
+            }
+            setSpeedError(false);
+            console.log(context.speed);
         }
-        setSpeedError(false);
-        console.log(context.speed);
     }, [speed]);
 
     const getJson = async () => {
@@ -352,7 +357,7 @@ export default function ConnectionWidget(props: any)
             if (jspiSpeed == null)
                 setSpeed(SPEED_AUTO_SCAN);
             else
-                setSpeed(jspiSpeed);
+                setSpeed(jspiSpeed.toString());
 
             if (jattn)
                 setAttn(1);
@@ -383,7 +388,7 @@ export default function ConnectionWidget(props: any)
     };
 
     const handleSpeedChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setSpeed(Number(event.target.value));
+        setSpeed(event.target.value);
     };
 
     function ResetDefault() {
@@ -510,7 +515,8 @@ export default function ConnectionWidget(props: any)
                         <Button color="primary" variant="contained" onClick={() => ResetDefault()}>
                             Reset
                         </Button>
-                        <Button color="primary" variant="contained" onClick={() => UpdateSettings()}>
+                        <Button color="primary" variant="contained" onClick={() => UpdateSettings()}
+                            disabled={addrError || speedError}>
                             Apply
                         </Button>
                     </Box>
