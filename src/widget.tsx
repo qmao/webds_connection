@@ -25,7 +25,7 @@ import { WebDSService } from '@webds/service';
 const I2C_ADDR_WIDTH = 150
 const SPEED_WIDTH = 150
 const SPEED_AUTO_SCAN = 0
-const I2C_ADDR_AUTO_SCAN = 128
+const I2C_ADDR_AUTO_SCAN = '128'
 const SPI_MODE_AUTO_SCAN = -1
 
 
@@ -129,7 +129,7 @@ function SelectAttn(
 
 function SelectI2cAddr(
     props: {
-        addr: number;
+        addr: string;
         error: boolean;
         handleChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     }) {
@@ -149,7 +149,6 @@ function SelectI2cAddr(
                 value={props.addr}
                 onChange={props.handleChange}
                 error={props.error}
-                type="number"
                 size="small"
                 sx={{
                     width: I2C_ADDR_WIDTH,
@@ -204,7 +203,7 @@ export default function ConnectionWidget(props: any)
 
     const [mode, setMode] = React.useState<string | number>(-1);
     const [attn, setAttn] = React.useState<string | number>(0);
-    const [addr, setAddr] = React.useState<number>(30);
+    const [addr, setAddr] = React.useState<string>('30');
     const [addrError, setAddrError] = React.useState(false);
 
     const [speed, setSpeed] = React.useState<number>(SPEED_AUTO_SCAN);
@@ -278,14 +277,20 @@ export default function ConnectionWidget(props: any)
         console.log("[addr]");
         console.log(addr);
 
-        if (addr > 128)
-            setAddr(128);
-        else if (addr < 0)
-            setAddr(0);
-        setAddrError(false);
+        let addr_num = Number(addr);
 
-        context.i2cAddr = Number(addr);
-        console.log(context.i2cAddr);
+        if (isNaN(addr_num)) {
+            setAddrError(true);
+        }
+        else {
+            if (addr_num > 128)
+                setAddr('128');
+            else if (addr_num < 0)
+                setAddr('0');
+            context.i2cAddr = addr_num;
+            console.log(context.i2cAddr);
+            setAddrError(false);
+        }
     }, [addr]);
 
     useEffect(() => {
@@ -341,7 +346,7 @@ export default function ConnectionWidget(props: any)
             else
                 setProtocol(jprotocol[0]);
 
-            setAddr(ji2cAddr);
+            setAddr(ji2cAddr.toString());
             setMode(jspiMode);
 
             if (jspiSpeed == null)
@@ -374,7 +379,7 @@ export default function ConnectionWidget(props: any)
     };
 
     const handleI2cAddrChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setAddr(Number(event.target.value));
+        setAddr(event.target.value);
     };
 
     const handleSpeedChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -503,10 +508,10 @@ export default function ConnectionWidget(props: any)
 
                     <Box sx={{ '& > :not(style)': { m: 1 } }}>
                         <Button color="primary" variant="contained" onClick={() => ResetDefault()}>
-                            Reset Settings
+                            Reset
                         </Button>
                         <Button color="primary" variant="contained" onClick={() => UpdateSettings()}>
-                            Connect
+                            Apply
                         </Button>
                     </Box>
                 </Stack>
