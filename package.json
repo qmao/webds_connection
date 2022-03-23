@@ -52,7 +52,8 @@
     "@jupyterlab/launcher": "^3.1.2",
     "@jupyterlab/settingregistry": "^3.1.0",
     "@mui/icons-material": "^5.2.5",
-    "@mui/material": "~5.2.6"
+    "@mui/material": "~5.2.6",
+    "@webds/service": "file:../webds_service"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^3.1.0",
@@ -77,7 +78,13 @@
   "jupyterlab": {
     "extension": true,
     "outputDir": "webds_connection/labextension",
-    "schemaDir": "schema"
+    "schemaDir": "schema",
+    "sharedPackages": {
+      "@webds/service": {
+        "bundled": false,
+        "singleton": true
+      }
+    }
   },
   "jupyter-releaser": {
     "hooks": {

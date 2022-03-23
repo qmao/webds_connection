@@ -14,6 +14,8 @@ import { ShellWidget } from './widget'
 
 import { extensionConnectionIcon } from './icons';
 
+import { WebDSService } from '@webds/service';
+
 
 /**
  * The command IDs used by the server extension plugin.
@@ -29,11 +31,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'connection:plugin',
   autoStart: true,
   optional: [ISettingRegistry],
-  requires: [ILauncher, ILayoutRestorer],  
+  requires: [ILauncher, ILayoutRestorer, WebDSService],
   activate: (
     app: JupyterFrontEnd,
     launcher: ILauncher,
     restorer: ILayoutRestorer,
+    service: WebDSService,
     settingRegistry: ISettingRegistry | null) => {
     console.log('JupyterLab extension connection is activated!');
 
@@ -64,7 +67,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 	  icon: extensionConnectionIcon,
       execute: () => {
         if (!widget || widget.isDisposed) {
-          let content = new ShellWidget();
+          let content = new ShellWidget(service);
 
           widget = new MainAreaWidget<ShellWidget>({ content });
           widget.id = 'connection';
