@@ -333,17 +333,17 @@ export default function ConnectionWidget(props: any)
         console.log("[addr]");
         console.log(addr);
 
-        let addr_num = Number(addr);
+        let num = parseInt(addr);
 
-        if (isNaN(addr_num) || addr == '') {
+        if (isNaN(num) || isNaN(Number(addr))) {
             setAddrError(true);
         }
         else {
-            if (addr_num > 128)
+            if (num > 128)
                 setAddr('128');
-            else if (addr_num < 0)
+            else if (num < 0)
                 setAddr('0');
-            context.i2cAddr = addr_num;
+            context.i2cAddr = num;
             console.log(context.i2cAddr);
             setAddrError(false);
         }
@@ -353,9 +353,9 @@ export default function ConnectionWidget(props: any)
         console.log("[speed]");
         console.log(speed);
 
-        let speed_num = Number(speed);
+        let num = parseInt(speed);
 
-        if (isNaN(speed_num) || speed == '') {
+        if (isNaN(num) || isNaN(Number(speed))) {
             setSpeedError(true);
         }
         else {
@@ -363,7 +363,7 @@ export default function ConnectionWidget(props: any)
                 context.speed = null;
             }
             else {
-                context.speed = speed;
+                context.speed = num;
             }
             setSpeedError(false);
             console.log(context.speed);
@@ -371,9 +371,9 @@ export default function ConnectionWidget(props: any)
     }, [speed]);
 
     useEffect(() => {
-        let num = Number(vdd);
+        let num = parseInt(vdd);
 
-        if (isNaN(num) || vdd == '') {
+        if (isNaN(num) || isNaN(Number(vdd))) {
             setVddError(true);
         }
         else {
@@ -388,9 +388,9 @@ export default function ConnectionWidget(props: any)
     }, [vdd]);
 
     useEffect(() => {
-        let num = Number(vddtx);
+        let num = parseInt(vddtx);
 
-        if (isNaN(num) || vddtx == '') {
+        if (isNaN(num) || isNaN(Number(vddtx))) {
             setVddtxError(true);
         }
         else {
@@ -405,9 +405,9 @@ export default function ConnectionWidget(props: any)
     }, [vddtx]);
 
     useEffect(() => {
-        let num = Number(vled);
+        let num = parseInt(vled);
 
-        if (isNaN(num) || vled == '') {
+        if (isNaN(num) || isNaN(Number(vled))) {
             setVledError(true);
         }
         else {
@@ -422,9 +422,9 @@ export default function ConnectionWidget(props: any)
     }, [vled]);
 
     useEffect(() => {
-        let num = Number(vpu);
+        let num = parseInt(vpu);
 
-        if (isNaN(num) || vpu == '') {
+        if (isNaN(num) || isNaN(Number(vpu))) {
             setVpuError(true);
         }
         else {
