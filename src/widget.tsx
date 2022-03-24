@@ -686,7 +686,7 @@ export default function ConnectionWidget(props: any)
 
                     <div>
                         <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
-                            <InputLabel id="connection-power-label">Power</InputLabel>
+                            <InputLabel id="connection-power-label">Voltage</InputLabel>
                             <Select
                                 labelId="connection-power-label"
                                 id="connection-power"
