@@ -674,7 +674,7 @@ export default function ConnectionWidget(props: any)
                             <Select
                                 labelId="connection-power-label"
                                 id="connection-power"
-                                label="Power"
+                                label="Voltage"
                                 onChange={handlePowerSelectChange}
                                 value={power}
                             >
