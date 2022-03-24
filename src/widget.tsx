@@ -241,6 +241,7 @@ export default function ConnectionWidget(props: any)
 {
     //const context = useContext(UserContext);
     const [interfaces, setInterfaces] = React.useState([]);
+    const [defaultJson, setDefaultJson] = React.useState('');
     const [protocol, setProtocol] = React.useState('auto');
     const [isI2c, setI2c] = React.useState(false);
     const [isSpi, setSpi] = React.useState(false);
@@ -438,6 +439,16 @@ export default function ConnectionWidget(props: any)
         }
     }, [vpu]);
 
+    useEffect(() => {
+        if (power == 'Default' && defaultJson != '') {
+            let jsonDefault = JSON.parse(defaultJson);
+
+            setVdd(jsonDefault['vdd'])
+            setVpu(jsonDefault['vpu'])
+            setVled(jsonDefault['vled'])
+            setVddtx(jsonDefault['vddtx'])
+        }
+    }, [power]);
 
     const getJson = async () => {
         const fetchData = async (section: string) => {
@@ -453,12 +464,16 @@ export default function ConnectionWidget(props: any)
             let jsonCustomString = JSON.stringify(data);
 
             let jsonDefault = JSON.parse(jsonDefaultString);
+            setDefaultJson(jsonDefaultString);
 
             let jinterfaces = jsonDefault['interfaces'];
             setInterfaces(jinterfaces);
 
             let jsonCustom = JSON.parse(jsonCustomString);
-            let jsonMerge = Object.assign(jsonDefault, jsonCustom);
+
+            //json object deep copy
+            let jsonMerge = JSON.parse(JSON.stringify(jsonDefault))
+            jsonMerge = Object.assign(jsonMerge, jsonCustom);
             console.log(jsonMerge);
             //jsonMergeRef.current = jsonMerge;
 
@@ -500,7 +515,8 @@ export default function ConnectionWidget(props: any)
             setVled(jpowerVled.toString());
             setVpu(jpowerVpu.toString());
 
-            if (jpowerVdd != jsonDefault['vdd'] || jpowerVddtx != jsonDefault['vddtx'] || jpowerVled != jsonDefault['vled'] || jpowerVpu != jsonDefault['vpu'])
+            if ((jpowerVdd != jsonDefault['vdd']) || (jpowerVddtx != jsonDefault['vddtx']) ||
+                (jpowerVled != jsonDefault['vled']) || (jpowerVpu != jsonDefault['vpu']))
                 setPower('Custom');
             else
                 setPower('Default');
