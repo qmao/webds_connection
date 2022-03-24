@@ -616,7 +616,7 @@ export default function ConnectionWidget(props: any)
     const webdsTheme = props.service.ui.getWebDSTheme();
 
     return (
-        <div>
+        <div className='jp-webds-widget-body'>
             <ThemeProvider theme={webdsTheme}>
                 <Collapse in={isAlert}>
                     <Alert severity={severity} onClose={() => setAlert(false)}>
@@ -721,7 +721,7 @@ export default function ConnectionWidget(props: any)
 
                     <SelectAttn handleChange={handleAttnChange} attn={attn} />
 
-                    <Box sx={{ '& > :not(style)': { m: 1 } }}>
+                    <Box sx={{ pt: 1, '& > :not(style)': { m: 1 } }}>
                         <Button color="primary" variant="contained" onClick={() => ResetDefault()}>
                             Reset
                         </Button>
@@ -756,7 +756,7 @@ export class ShellWidget extends ReactWidget {
     */
     constructor(service: WebDSService) {
         super();
-        this.addClass('content-widget');
+        this.addClass('jp-webds-widget');
         this.service = service
         console.log("TabPanelUiWidget is created!!!");
     }
