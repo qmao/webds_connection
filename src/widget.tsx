@@ -22,12 +22,17 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { ThemeProvider } from "@mui/material/styles";
 import { WebDSService } from '@webds/service';
 
-const I2C_ADDR_WIDTH = 150
-const SPEED_WIDTH = 150
+const I2C_ADDR_WIDTH = 100
+const SPEED_WIDTH = 100
+const POWER_WIDTH = 100
+const LEVEL1_SELECT_WIDTH = 120
 const SPEED_AUTO_SCAN = '0'
 const I2C_ADDR_AUTO_SCAN = '128'
 const SPI_MODE_AUTO_SCAN = -1
-
+const DEFAULT_POWER_VDD = '1800'
+const DEFAULT_POWER_VDDTX = '1200'
+const DEFAULT_POWER_VLED = '3300'
+const DEFAULT_POWER_VPU = '1800'
 
 interface ConnectionSettings {
     action: string;
@@ -110,7 +115,7 @@ function SelectAttn(
 
     return (
         <div>
-            <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+            <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
                 <InputLabel id="connection-select-spi-label">Attn</InputLabel>
                 <Select
                     labelId="connection-select-spi-label"
@@ -185,9 +190,50 @@ function SelectSpiSpeed(
                     width: SPEED_WIDTH,
                 }}
             />
+
+            <Typography id="input-spi-speed" sx={{ p: 1 }}>
+                kHz
+            </Typography>
         </Stack>
     );
 }
+
+
+function SelectPower(
+    props: {
+        name: string;
+        power: string;
+        error?: boolean;
+        handleChange: (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, source: string) => void;
+    }) {
+
+    return (
+        <Stack spacing={0} sx={{
+            flexDirection: 'row',
+            display: 'flex',
+            alignItems: "center",
+        }}>
+            <Typography sx={{ p: 1, width: 55 }}>
+                {props.name}
+            </Typography>
+
+            <TextField id="filled-basic"
+                value={props.power}
+                onChange={(e) => props.handleChange(e, props.name)}
+                error={props.error}
+                size="small"
+                sx={{
+                    width: POWER_WIDTH,
+                }}
+            />
+
+            <Typography sx={{ p: 1 }}>
+                mv
+            </Typography>
+        </Stack>
+    );
+}
+
 
 type SeverityType = 'error' | 'info' | 'success' | 'warning';
 
@@ -203,6 +249,18 @@ export default function ConnectionWidget(props: any)
     const [mode, setMode] = React.useState<string | number>(-1);
     const [attn, setAttn] = React.useState<string | number>(0);
     const [addr, setAddr] = React.useState<string>('30');
+
+    const [power, setPower] = React.useState('Default');
+    const [vdd, setVdd] = React.useState<string>(DEFAULT_POWER_VDD);
+    const [vddtx, setVddtx] = React.useState<string>(DEFAULT_POWER_VDDTX);
+    const [vled, setVled] = React.useState<string>(DEFAULT_POWER_VLED);
+    const [vpu, setVpu] = React.useState<string>(DEFAULT_POWER_VPU);
+
+    const [vddError, setVddError] = useState(false);
+    const [vddtxError, setVddtxError] = useState(false);
+    const [vledError, setVledError] = useState(false);
+    const [vpuError, setVpuError] = useState(false);
+
     const [addrError, setAddrError] = React.useState(false);
 
     const [speed, setSpeed] = React.useState<string>(SPEED_AUTO_SCAN);
@@ -312,6 +370,75 @@ export default function ConnectionWidget(props: any)
         }
     }, [speed]);
 
+    useEffect(() => {
+        let num = Number(vdd);
+
+        if (isNaN(num) || vdd == '') {
+            setVddError(true);
+        }
+        else {
+            if (num > 4000)
+                setVdd('4000');
+            else if (num < 0)
+                setVdd('0');
+            context.vdd = num;
+            console.log(context.vdd);
+            setVddError(false);
+        }
+    }, [vdd]);
+
+    useEffect(() => {
+        let num = Number(vddtx);
+
+        if (isNaN(num) || vddtx == '') {
+            setVddtxError(true);
+        }
+        else {
+            if (num > 4000)
+                setVddtx('4000');
+            else if (num < 0)
+                setVddtx('0');
+            context.vddtx = num;
+            console.log(context.vddtx);
+            setVddtxError(false);
+        }
+    }, [vddtx]);
+
+    useEffect(() => {
+        let num = Number(vled);
+
+        if (isNaN(num) || vled == '') {
+            setVledError(true);
+        }
+        else {
+            if (num > 4000)
+                setVled('4000');
+            else if (num < 0)
+                setVled('0');
+            context.vled = num;
+            console.log(context.vled);
+            setVledError(false);
+        }
+    }, [vled]);
+
+    useEffect(() => {
+        let num = Number(vpu);
+
+        if (isNaN(num) || vpu == '') {
+            setVpuError(true);
+        }
+        else {
+            if (num > 4000)
+                setVpu('4000');
+            else if (num < 0)
+                setVpu('0');
+            context.vpu = num;
+            console.log(context.vpu);
+            setVpuError(false);
+        }
+    }, [vpu]);
+
+
     const getJson = async () => {
         const fetchData = async (section: string) => {
             const data = await Get(section);
@@ -340,6 +467,10 @@ export default function ConnectionWidget(props: any)
             let jspiMode = jsonMerge['spiMode'];
             let jspiSpeed = jsonMerge['speed'];
             let jattn = jsonMerge['useAttn'];
+            let jpowerVdd = jsonMerge['vdd'];
+            let jpowerVddtx = jsonMerge['vddtx'];
+            let jpowerVled = jsonMerge['vled'];
+            let jpowerVpu = jsonMerge['vpu'];
 
             console.log(jprotocol);
             console.log(ji2cAddr);
@@ -363,6 +494,16 @@ export default function ConnectionWidget(props: any)
                 setAttn(1);
             else
                 setAttn(0);
+
+            setVdd(jpowerVdd.toString());
+            setVddtx(jpowerVddtx.toString());
+            setVled(jpowerVled.toString());
+            setVpu(jpowerVpu.toString());
+
+            if (jpowerVdd != jsonDefault['vdd'] || jpowerVddtx != jsonDefault['vddtx'] || jpowerVled != jsonDefault['vled'] || jpowerVpu != jsonDefault['vpu'])
+                setPower('Custom');
+            else
+                setPower('Default');
         }
         catch(error) {
             showError(error);
@@ -373,6 +514,11 @@ export default function ConnectionWidget(props: any)
     const handleChange = (event: SelectChangeEvent<typeof protocol>) => {
         console.log(event.target.value);
         setProtocol(event.target.value);
+    };
+
+    const handlePowerSelectChange = (event: SelectChangeEvent<typeof power>) => {
+        console.log(event.target.value);
+        setPower(event.target.value);
     };
 
     const handleSpiModeChange = (event: SelectChangeEvent) => {
@@ -389,6 +535,19 @@ export default function ConnectionWidget(props: any)
 
     const handleSpeedChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setSpeed(event.target.value);
+    };
+
+    const handlePowerChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, source: string) => {
+        console.log(event.target.value);
+        console.log(source);
+        if (source == 'VDDL')
+            setVdd(event.target.value);
+        else if (source == 'VDD12')
+            setVddtx(event.target.value);
+        else if (source == 'VDDH')
+            setVled(event.target.value);
+        else if (source == 'VBUS')
+            setVpu(event.target.value);
     };
 
     function ResetDefault() {
@@ -463,7 +622,7 @@ export default function ConnectionWidget(props: any)
                     ml: 3
                 }}>
                     <div>
-                        <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                        <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
                             <InputLabel id="connection-helper-label">Protocol</InputLabel>
                             <Select
                                 labelId="connection-helper-label"
@@ -509,14 +668,49 @@ export default function ConnectionWidget(props: any)
                         </Paper>
                     </Collapse>
 
-                    <SelectAttn handleChange={handleAttnChange} attn={attn}/>
+                    <div>
+                        <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
+                            <InputLabel id="connection-power-label">Power</InputLabel>
+                            <Select
+                                labelId="connection-power-label"
+                                id="connection-power"
+                                label="Power"
+                                onChange={handlePowerSelectChange}
+                                value={power}
+                            >
+                                {['Default', 'Custom'].map((value) => {
+                                    return (
+                                        <MenuItem value={value}>{value}</MenuItem>
+                                    );
+                                })}
+                            </Select>
+                        </FormControl>
+                    </div>
+
+                    <Collapse in={power != 'Default'}>
+                        <Paper variant="outlined" square sx={{ ml: 1 }}>
+                            <Stack spacing={1} sx={{
+                                flexDirection: 'column',
+                                display: 'flex',
+                                alignItems: "left",
+                                p: 1
+                            }}>
+                                <SelectPower name="VDDL" handleChange={handlePowerChange} power={vdd} error={vddError}/>
+                                <SelectPower name="VDDH" handleChange={handlePowerChange} power={vled} error={vledError} />
+                                <SelectPower name="VDD12" handleChange={handlePowerChange} power={vddtx} error={vddtxError} />
+                                <SelectPower name="VBUS" handleChange={handlePowerChange} power={vpu} error={vpuError}/>
+                            </Stack>
+                        </Paper>
+                    </Collapse>
+
+                    <SelectAttn handleChange={handleAttnChange} attn={attn} />
 
                     <Box sx={{ '& > :not(style)': { m: 1 } }}>
                         <Button color="primary" variant="contained" onClick={() => ResetDefault()}>
                             Reset
                         </Button>
                         <Button color="primary" variant="contained" onClick={() => UpdateSettings()}
-                            disabled={addrError || speedError}>
+                            disabled={addrError || speedError || vddError || vddtxError || vledError || vpuError}>
                             Apply
                         </Button>
                     </Box>
