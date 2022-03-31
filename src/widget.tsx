@@ -26,6 +26,7 @@ const I2C_ADDR_WIDTH = 100
 const SPEED_WIDTH = 100
 const POWER_WIDTH = 100
 const LEVEL1_SELECT_WIDTH = 120
+const TITLE_WIDTH = 120
 const SPEED_AUTO_SCAN = '0'
 const I2C_ADDR_AUTO_SCAN = '128'
 const SPI_MODE_AUTO_SCAN = -1
@@ -85,7 +86,7 @@ function SelectSpiMode(
             alignItems: "center",
             p: 1
         }}>
-            <Typography id="input-spi-speed" sx={{ p: 1 }}>
+            <Typography id="input-spi-speed" sx={{ p: 1, minWidth: TITLE_WIDTH }}>
                 SPI Mode
             </Typography>
 
@@ -146,7 +147,7 @@ function SelectI2cAddr(
             alignItems: "center",
             p:1
         }}>
-            <Typography id="input-i2c-address" sx={{ p: 1 }}>
+            <Typography id="input-i2c-address" sx={{ p: 1, minWidth: TITLE_WIDTH }}>
                 Slave Address
             </Typography>
 
@@ -163,8 +164,10 @@ function SelectI2cAddr(
     );
 }
 
-function SelectSpiSpeed(
+function SelectSpeed(
     props: {
+        name: string;
+        unit: string;
         speed: string;
         error: boolean;
         handleChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -177,8 +180,8 @@ function SelectSpiSpeed(
             alignItems: "center",
             p: 1
         }}>
-            <Typography id="input-spi-speed" sx={{ p: 1 }}>
-                SPI Speed
+            <Typography sx={{ p: 1, minWidth: TITLE_WIDTH }}>
+                { props.name }
             </Typography>
 
             <TextField id="filled-basic"
@@ -191,8 +194,8 @@ function SelectSpiSpeed(
                 }}
             />
 
-            <Typography id="input-spi-speed" sx={{ p: 1 }}>
-                kHz
+            <Typography sx={{ p: 1 }}>
+                { props.unit }
             </Typography>
         </Stack>
     );
@@ -480,7 +483,7 @@ export default function ConnectionWidget(props: any)
             let jprotocol = jsonMerge['interfaces'];
             let ji2cAddr = jsonMerge['i2cAddr'];
             let jspiMode = jsonMerge['spiMode'];
-            let jspiSpeed = jsonMerge['speed'];
+            let jspeed = jsonMerge['speed'];
             let jattn = jsonMerge['useAttn'];
             let jpowerVdd = jsonMerge['vdd'];
             let jpowerVddtx = jsonMerge['vddtx'];
@@ -500,10 +503,10 @@ export default function ConnectionWidget(props: any)
             setAddr(ji2cAddr.toString());
             setMode(jspiMode);
 
-            if (jspiSpeed == null)
+            if (jspeed == null)
                 setSpeed(SPEED_AUTO_SCAN);
             else
-                setSpeed(jspiSpeed.toString());
+                setSpeed(jspeed.toString());
 
             if (jattn)
                 setAttn(1);
@@ -667,7 +670,14 @@ export default function ConnectionWidget(props: any)
                             }}>
 
                                 <Collapse in={isI2c}>
-                                    <SelectI2cAddr handleChange={handleI2cAddrChange} addr={addr} error={addrError} />
+                                    <Stack spacing={2} sx={{
+                                        flexDirection: 'column',
+                                        display: 'flex',
+                                        alignItems: "left",
+                                    }}>
+                                        <SelectI2cAddr handleChange={handleI2cAddrChange} addr={addr} error={addrError} />
+                                        <SelectSpeed handleChange={handleSpeedChange} speed={speed} error={speedError} name='I2C Speed' unit='KHz' />
+                                    </Stack>
                                 </Collapse>
 
                                 <Collapse in={isSpi}>
@@ -677,7 +687,7 @@ export default function ConnectionWidget(props: any)
                                         alignItems: "left",
                                     }}>
                                         <SelectSpiMode handleChange={handleSpiModeChange} mode={mode} />
-                                        <SelectSpiSpeed handleChange={handleSpeedChange} speed={speed} error={speedError} />
+                                        <SelectSpeed handleChange={handleSpeedChange} speed={speed} error={speedError} name='SPI Speed' unit='KHz'/>
                                     </Stack>
                                 </Collapse>
                             </Stack>
