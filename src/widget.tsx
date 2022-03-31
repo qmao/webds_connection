@@ -284,13 +284,12 @@ export default function ConnectionWidget(props: any)
     }, []);
 
     useEffect(() => {
-        console.log("[interfaces]");
-        console.log(context.interfaces);
+        //console.log("[interfaces]");
         context.interfaces = interfaces;
     }, [interfaces]);
 
     useEffect(() => {
-        console.log("[protocol]");
+        //console.log("[protocol]");
         if (protocol == "auto") {
             context.interfaces = interfaces;
             setAddr(I2C_ADDR_AUTO_SCAN);
@@ -300,7 +299,7 @@ export default function ConnectionWidget(props: any)
         else {
             context.interfaces = [protocol];
         }
-        console.log(context.interfaces);
+        //console.log(context.interfaces);
 
         let i2c = false;
         let spi = false;
@@ -319,18 +318,18 @@ export default function ConnectionWidget(props: any)
     }, [protocol]);
 
     useEffect(() => {
-        console.log("[mode]");
+        //console.log("[mode]");
         context.spiMode = Number(mode);
-        console.log(context.spiMode);
+        //console.log(context.spiMode);
     }, [mode]);
 
     useEffect(() => {
-        console.log("[attn]");
+        //console.log("[attn]");
         if (attn == 0)
             context.useAttn = false;
         else if (attn == 1)
             context.useAttn = true;
-        console.log(context.useAttn);
+        //console.log(context.useAttn);
     }, [attn]);
 
     useEffect(() => {
@@ -348,7 +347,7 @@ export default function ConnectionWidget(props: any)
             else if (num < 0)
                 setAddr('0');
             context.i2cAddr = num;
-            console.log(context.i2cAddr);
+            //console.log(context.i2cAddr);
             setAddrError(false);
         }
     }, [addr]);
@@ -370,7 +369,7 @@ export default function ConnectionWidget(props: any)
                 context.speed = num;
             }
             setSpeedError(false);
-            console.log(context.speed);
+            //console.log(context.speed);
         }
     }, [speed]);
 
@@ -386,7 +385,7 @@ export default function ConnectionWidget(props: any)
             else if (num < 0)
                 setVdd('0');
             context.vdd = num;
-            console.log(context.vdd);
+            //console.log(context.vdd);
             setVddError(false);
         }
     }, [vdd]);
@@ -403,7 +402,7 @@ export default function ConnectionWidget(props: any)
             else if (num < 0)
                 setVddtx('0');
             context.vddtx = num;
-            console.log(context.vddtx);
+            //console.log(context.vddtx);
             setVddtxError(false);
         }
     }, [vddtx]);
@@ -420,7 +419,7 @@ export default function ConnectionWidget(props: any)
             else if (num < 0)
                 setVled('0');
             context.vled = num;
-            console.log(context.vled);
+            //console.log(context.vled);
             setVledError(false);
         }
     }, [vled]);
@@ -437,7 +436,7 @@ export default function ConnectionWidget(props: any)
             else if (num < 0)
                 setVpu('0');
             context.vpu = num;
-            console.log(context.vpu);
+            //console.log(context.vpu);
             setVpuError(false);
         }
     }, [vpu]);
@@ -490,10 +489,11 @@ export default function ConnectionWidget(props: any)
             let jpowerVled = jsonMerge['vled'];
             let jpowerVpu = jsonMerge['vpu'];
 
-            console.log(jprotocol);
-            console.log(ji2cAddr);
-            console.log(jspiMode);
-            console.log(jattn);
+            //console.log(jprotocol);
+            //console.log(ji2cAddr);
+            //console.log(jspiMode);
+            //console.log(jattn);
+            //console.log(jspeed);
 
             if (jprotocol.length > 1)
                 setProtocol("auto");
