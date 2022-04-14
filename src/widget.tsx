@@ -27,13 +27,15 @@ const SPEED_WIDTH = 100
 const POWER_WIDTH = 100
 const LEVEL1_SELECT_WIDTH = 120
 const TITLE_WIDTH = 120
-const SPEED_AUTO_SCAN = '0'
+const SPEED_AUTO_SCAN = null
 const I2C_ADDR_AUTO_SCAN = '128'
 const SPI_MODE_AUTO_SCAN = -1
 const DEFAULT_POWER_VDD = '1800'
 const DEFAULT_POWER_VDDTX = '1200'
 const DEFAULT_POWER_VLED = '3300'
 const DEFAULT_POWER_VPU = '1800'
+const DEFAULT_SPEED_I2C = '1000'
+const DEFAULT_SPEED_SPI = '15000'
 
 interface ConnectionSettings {
     action: string;
@@ -267,8 +269,10 @@ export default function ConnectionWidget(props: any)
 
     const [addrError, setAddrError] = React.useState(false);
 
-    const [speed, setSpeed] = React.useState<string>(SPEED_AUTO_SCAN);
-    const [speedError, setSpeedError] = useState(false);
+    const [speedI2c, setSpeedI2c] = React.useState<string>(DEFAULT_SPEED_I2C);
+    const [speedSpi, setSpeedSpi] = React.useState<string>(DEFAULT_SPEED_SPI);
+    const [speedI2cError, setSpeedI2cError] = useState(false);
+    const [speedSpiError, setSpeedSpiError] = useState(false);
 
     const [isAlert, setAlert] = useState(false);
     const [message, setMessage] = useState('');
@@ -294,7 +298,8 @@ export default function ConnectionWidget(props: any)
             context.interfaces = interfaces;
             setAddr(I2C_ADDR_AUTO_SCAN);
             setMode(SPI_MODE_AUTO_SCAN);
-            setSpeed(SPEED_AUTO_SCAN);
+            setSpeedI2c(DEFAULT_SPEED_I2C);
+            setSpeedSpi(DEFAULT_SPEED_SPI);
         }
         else {
             context.interfaces = [protocol];
@@ -353,25 +358,32 @@ export default function ConnectionWidget(props: any)
     }, [addr]);
 
     useEffect(() => {
-        console.log("[speed]");
-        console.log(speed);
+        console.log("[speed i2c]");
 
-        let num = parseInt(speed);
+        let num = parseInt(speedI2c);
 
-        if (isNaN(num) || isNaN(Number(speed))) {
-            setSpeedError(true);
+        if (isNaN(num) || isNaN(Number(speedI2c))) {
+            setSpeedI2cError(true);
         }
         else {
-            if (speed == SPEED_AUTO_SCAN) {
-                context.speed = null;
-            }
-            else {
-                context.speed = num;
-            }
-            setSpeedError(false);
+            setSpeedI2cError(false);
             //console.log(context.speed);
         }
-    }, [speed]);
+    }, [speedI2c]);
+
+    useEffect(() => {
+        console.log("[speed spi]");
+
+        let num = parseInt(speedSpi);
+
+        if (isNaN(num) || isNaN(Number(speedSpi))) {
+            setSpeedSpiError(true);
+        }
+        else {
+            setSpeedSpiError(false);
+            //console.log(context.speed);
+        }
+    }, [speedSpi]);
 
     useEffect(() => {
         let num = parseInt(vdd);
@@ -503,10 +515,14 @@ export default function ConnectionWidget(props: any)
             setAddr(ji2cAddr.toString());
             setMode(jspiMode);
 
-            if (jspeed == null)
-                setSpeed(SPEED_AUTO_SCAN);
-            else
-                setSpeed(jspeed.toString());
+            if (jspeed == null || protocol == "auto") {
+                setSpeedSpi(DEFAULT_SPEED_SPI);
+                setSpeedI2c(DEFAULT_SPEED_I2C);
+            } else if ( protocol == "spi") {
+                setSpeedSpi(jspeed.toString());
+            } else if ( protocol == "i2c") {
+                setSpeedI2c(jspeed.toString());
+            }
 
             if (jattn)
                 setAttn(1);
@@ -552,8 +568,12 @@ export default function ConnectionWidget(props: any)
         setAddr(event.target.value);
     };
 
-    const handleSpeedChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setSpeed(event.target.value);
+    const handleSpeedI2cChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setSpeedI2c(event.target.value);
+    };
+
+    const handleSpeedSpiChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setSpeedSpi(event.target.value);
     };
 
     const handlePowerChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, source: string) => {
@@ -589,9 +609,21 @@ export default function ConnectionWidget(props: any)
         setAlert(true);
     }
 
+    function SetSpeed() {
+        console.log("[speed]");
+
+        if (protocol == "auto")
+            context.speed = SPEED_AUTO_SCAN;
+        else if (protocol == "i2c")
+            context.speed = speedI2c;
+        else if (protocol == "spi")
+            context.speed = speedSpi;
+    }
+
     function UpdateSettings() {
         setLoad(true);
         setAlert(false);
+        SetSpeed();
         console.log(context);
         Post({ action: "update", value: context })
             .then(result => {
@@ -676,7 +708,7 @@ export default function ConnectionWidget(props: any)
                                         alignItems: "left",
                                     }}>
                                         <SelectI2cAddr handleChange={handleI2cAddrChange} addr={addr} error={addrError} />
-                                        <SelectSpeed handleChange={handleSpeedChange} speed={speed} error={speedError} name='I2C Speed' unit='KHz' />
+                                        <SelectSpeed handleChange={handleSpeedI2cChange} speed={speedI2c} error={speedI2cError} name='I2C Speed' unit='KHz' />
                                     </Stack>
                                 </Collapse>
 
@@ -687,7 +719,7 @@ export default function ConnectionWidget(props: any)
                                         alignItems: "left",
                                     }}>
                                         <SelectSpiMode handleChange={handleSpiModeChange} mode={mode} />
-                                        <SelectSpeed handleChange={handleSpeedChange} speed={speed} error={speedError} name='SPI Speed' unit='KHz'/>
+                                        <SelectSpeed handleChange={handleSpeedSpiChange} speed={speedSpi} error={speedSpiError} name='SPI Speed' unit='KHz'/>
                                     </Stack>
                                 </Collapse>
                             </Stack>
@@ -736,7 +768,7 @@ export default function ConnectionWidget(props: any)
                             Reset
                         </Button>
                         <Button color="primary" variant="contained" onClick={() => UpdateSettings()}
-                            disabled={addrError || speedError || vddError || vddtxError || vledError || vpuError}>
+                            disabled={addrError || speedSpiError || speedI2cError || vddError || vddtxError || vledError || vpuError}>
                             Apply
                         </Button>
                     </Box>
