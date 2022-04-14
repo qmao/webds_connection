@@ -507,22 +507,23 @@ export default function ConnectionWidget(props: any)
             //console.log(jattn);
             //console.log(jspeed);
 
-            if (jprotocol.length > 1)
+            if (jprotocol.length > 1) {
                 setProtocol("auto");
-            else
+            } else {
                 setProtocol(jprotocol[0]);
+
+                if (jspeed == null) {
+                    setSpeedSpi(DEFAULT_SPEED_SPI);
+                    setSpeedI2c(DEFAULT_SPEED_I2C);
+                } else if (jprotocol[0] == "spi") {
+                    setSpeedSpi(jspeed.toString());
+                } else if (jprotocol[0] == "i2c") {
+                    setSpeedI2c(jspeed.toString());
+                }
+            }
 
             setAddr(ji2cAddr.toString());
             setMode(jspiMode);
-
-            if (jspeed == null || protocol == "auto") {
-                setSpeedSpi(DEFAULT_SPEED_SPI);
-                setSpeedI2c(DEFAULT_SPEED_I2C);
-            } else if ( protocol == "spi") {
-                setSpeedSpi(jspeed.toString());
-            } else if ( protocol == "i2c") {
-                setSpeedI2c(jspeed.toString());
-            }
 
             if (jattn)
                 setAttn(1);
