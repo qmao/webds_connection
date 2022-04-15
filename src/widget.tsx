@@ -1,5 +1,5 @@
 import { ReactWidget } from '@jupyterlab/apputils';
-import React, { useEffect, /*useRef,*/ useState, useContext } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 
 import { UserContext } from './context';
 import { requestAPI } from './handler';
@@ -12,7 +12,8 @@ import {
     Button,
     Alert, AlertTitle,
     Chip,
-    Backdrop
+    Backdrop,
+    ToggleButtonGroup, ToggleButton
 } from '@mui/material';
 
 import CircularProgress from '@mui/material/CircularProgress';
@@ -27,6 +28,7 @@ const SPEED_WIDTH = 100
 const POWER_WIDTH = 100
 const LEVEL1_SELECT_WIDTH = 120
 const TITLE_WIDTH = 120
+const VOLTAGE_CONTENT_WIDTH = 58
 const SPEED_AUTO_SCAN = null
 const I2C_ADDR_AUTO_SCAN = '128'
 const SPI_MODE_AUTO_SCAN = -1
@@ -36,6 +38,37 @@ const DEFAULT_POWER_VLED = '3300'
 const DEFAULT_POWER_VPU = '1800'
 const DEFAULT_SPEED_I2C = '1000'
 const DEFAULT_SPEED_SPI = '15000'
+
+const VOLTAGE_GROUP = ["VDDL", "VDDH", "VDD12", "VBUS"];
+const VOLTAGE_SET = {
+    "CommHat Rev2": {
+        VDDL: [1690, 1800, 1900, 1960],
+        VDDH: [2700, 3000, 3300, 3600],
+        VDD12: [1140, 1200, 1260, 1320],
+        VBUS: [1800, 3300],
+        DEFAULT: {
+            VDDL: 1800,
+            VDDH: 3300,
+            VDD12: 1200,
+            VBUS: 1800
+        }
+    },
+    /*
+    TEST: {
+        VDDL: [111, 222, 333],
+        VDDH: [444, 3000, 3300, 3600],
+        VDD12: [333, 1200, 1260, 1320],
+        VBUS: [7777, 3300],
+        DEFAULT: {
+            VDDL: 222,
+            VDDH: 444,
+            VDD12: 1260,
+            VBUS: 3300
+        }
+    },
+    */
+};
+
 
 interface ConnectionSettings {
     action: string;
@@ -242,8 +275,7 @@ function SelectPower(
 
 type SeverityType = 'error' | 'info' | 'success' | 'warning';
 
-export default function ConnectionWidget(props: any)
-{
+export default function ConnectionWidget(props: any) {
     //const context = useContext(UserContext);
     const [interfaces, setInterfaces] = React.useState([]);
     const [defaultJson, setDefaultJson] = React.useState('');
@@ -281,10 +313,18 @@ export default function ConnectionWidget(props: any)
     const [info, setInfo] = useState<string[]>([]);
     const [load, setLoad] = React.useState(false);
 
+    const [voltageSet, setVoltageSet] = React.useState({});
+    const [hardware, setHardware] = React.useState("TEST");
+    const [hardwareList, setHardwareList] = React.useState([]);
+    const [voltageUser, setVoltageUser] = React.useState({ "VDDH": 0, "VDDL": 0, "VDD12": 0, "VBUS": 0 });
+
+    const powerJson = useRef({});
+
     const context = useContext(UserContext);
 
     useEffect(() => {
         getJson();
+        LoadVoltageSets();
     }, []);
 
     useEffect(() => {
@@ -454,13 +494,43 @@ export default function ConnectionWidget(props: any)
     }, [vpu]);
 
     useEffect(() => {
-        if (power == 'Default' && defaultJson != '') {
-            let jsonDefault = JSON.parse(defaultJson);
+        console.log("set voltageUser:", voltageUser);
+        if (Object.keys(voltageSet).length) {
+            VOLTAGE_GROUP.map((v) => {
+                updateVoltages(v, voltageUser[v]);
+            })
+        }
+    }, [voltageUser]);
 
-            setVdd(jsonDefault['vdd'])
-            setVpu(jsonDefault['vpu'])
-            setVled(jsonDefault['vled'])
-            setVddtx(jsonDefault['vddtx'])
+    useEffect(() => {
+        console.log("set hardware:", hardware, voltageSet);
+        if (Object.keys(voltageSet).length) {
+            var newVoltageUser = Object.assign({}, voltageUser);
+            VOLTAGE_GROUP.map((v) => {
+                newVoltageUser[v] = voltageSet[hardware]["DEFAULT"][v];
+            })
+            console.log(hardware, voltageUser);
+            setVoltageUser(newVoltageUser);
+        }
+    }, [hardware]);
+
+    useEffect(() => {
+        switch (power) {
+            case 'Default':
+                if (defaultJson != '') {
+                    let jsonDefault = JSON.parse(defaultJson);
+
+                    setVdd(jsonDefault['vdd'])
+                    setVpu(jsonDefault['vpu'])
+                    setVled(jsonDefault['vled'])
+                    setVddtx(jsonDefault['vddtx'])
+                }
+                break;
+            case 'Custom':
+                break;
+            default:
+                setHardware(power);
+                break;
         }
     }, [power]);
 
@@ -541,7 +611,7 @@ export default function ConnectionWidget(props: any)
             else
                 setPower('Default');
         }
-        catch(error) {
+        catch (error) {
             showError(error);
         }
     };
@@ -577,17 +647,35 @@ export default function ConnectionWidget(props: any)
         setSpeedSpi(event.target.value);
     };
 
+    const handleVoltageChange = (voltage: string, newValue: string) => {
+        console.log("handleVoltageChange", voltage, newValue);
+        var newVoltageUser = Object.assign({}, voltageUser);
+        newVoltageUser[voltage] = newValue;
+        setVoltageUser(newVoltageUser);
+    };
+
+    const updateVoltages = (voltage: string, value: string) => {
+        switch (voltage) {
+            case 'VDDL':
+                setVdd(value);
+                break;
+            case 'VDD12':
+                setVddtx(value);
+                break;
+            case 'VDDH':
+                setVled(value);
+                break;
+            case 'VBUS':
+                setVpu(value);
+                break;
+        }
+    };
+
     const handlePowerChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, source: string) => {
         console.log(event.target.value);
         console.log(source);
-        if (source == 'VDDL')
-            setVdd(event.target.value);
-        else if (source == 'VDD12')
-            setVddtx(event.target.value);
-        else if (source == 'VDDH')
-            setVled(event.target.value);
-        else if (source == 'VBUS')
-            setVpu(event.target.value);
+
+        updateVoltages(source, event.target.value);
     };
 
     function ResetDefault() {
@@ -621,6 +709,37 @@ export default function ConnectionWidget(props: any)
             context.speed = speedSpi;
     }
 
+    function LoadVoltageSets() {
+        //Fixme
+        setHardwareList(Object.keys(VOLTAGE_SET));
+        powerJson.current = VOLTAGE_SET;
+
+        var plist = [];
+        for (var key in VOLTAGE_SET) {
+            plist.push(key);
+        }
+
+        let vsets = Object.keys(VOLTAGE_SET);
+
+        vsets.forEach((vset) => {
+            voltageSet[vset] = {};
+            VOLTAGE_GROUP.forEach((voltage) => {
+                console.log(voltage);
+                var parr = powerJson.current[vset][voltage];
+                var narr = [];
+                parr.forEach((element, index) => {
+                    narr.push({ value: element, label: `${element}` });
+                });
+
+                voltageSet[vset][voltage] = narr;
+                voltageSet[vset]["DEFAULT"] = powerJson.current[vset]["DEFAULT"];
+                setVoltageUser(voltageSet[vset]["DEFAULT"]);
+            });
+        });
+
+        setVoltageSet(voltageSet);
+    }
+
     function UpdateSettings() {
         setLoad(true);
         setAlert(false);
@@ -647,6 +766,54 @@ export default function ConnectionWidget(props: any)
                 showError(error);
                 setLoad(false);
             })
+    }
+
+    const getVoltageSetUI = () => {
+        return (
+            <Stack spacing={1} sx={{
+                flexDirection: 'column',
+                display: 'flex',
+                alignItems: "left",
+                p: 1
+            }}>
+            {
+                VOLTAGE_GROUP.map((target) => {
+                    return (
+                        <Stack spacing={0} sx={{
+                            flexDirection: 'row',
+                            display: 'flex',
+                            alignItems: "center",
+                        }}>
+                            <Typography sx={{ p: 1, width: 55 }}>
+                                {target}
+                            </Typography>
+
+                            <ToggleButtonGroup
+                                color="primary"
+                                exclusive
+                                value={voltageUser[target]}
+                                onChange={(e, value) => handleVoltageChange(target, value)}
+                            >
+                                {
+                                    voltageSet[hardware][target].map((item) => {
+                                        return (
+                                            <ToggleButton
+                                                value={item.value}
+                                                sx={{ width: VOLTAGE_CONTENT_WIDTH }}
+                                            >
+                                                {item.label}
+                                            </ToggleButton>
+                                        )
+                                    })
+
+                                }
+                            </ToggleButtonGroup>
+                        </Stack>
+                    );
+                })
+                }
+            </Stack>
+        );
     }
 
     const webdsTheme = props.service.ui.getWebDSTheme();
@@ -737,7 +904,7 @@ export default function ConnectionWidget(props: any)
                                 onChange={handlePowerSelectChange}
                                 value={power}
                             >
-                                {['Default', 'Custom'].map((value) => {
+                                {['Default', 'Custom', ...hardwareList].map((value) => {
                                     return (
                                         <MenuItem value={value}>{value}</MenuItem>
                                     );
@@ -748,17 +915,24 @@ export default function ConnectionWidget(props: any)
 
                     <Collapse in={power != 'Default'}>
                         <Paper variant="outlined" square sx={{ ml: 1 }}>
-                            <Stack spacing={1} sx={{
-                                flexDirection: 'column',
-                                display: 'flex',
-                                alignItems: "left",
-                                p: 1
-                            }}>
-                                <SelectPower name="VDDL" handleChange={handlePowerChange} power={vdd} error={vddError}/>
-                                <SelectPower name="VDDH" handleChange={handlePowerChange} power={vled} error={vledError} />
-                                <SelectPower name="VDD12" handleChange={handlePowerChange} power={vddtx} error={vddtxError} />
-                                <SelectPower name="VBUS" handleChange={handlePowerChange} power={vpu} error={vpuError}/>
-                            </Stack>
+                            {
+                                power == 'Custom' &&
+                                <Stack spacing={1} sx={{
+                                    flexDirection: 'column',
+                                    display: 'flex',
+                                    alignItems: "left",
+                                    p: 1
+                                }}>
+                                    <SelectPower name="VDDL" handleChange={handlePowerChange} power={vdd} error={vddError} />
+                                    <SelectPower name="VDDH" handleChange={handlePowerChange} power={vled} error={vledError} />
+                                    <SelectPower name="VDD12" handleChange={handlePowerChange} power={vddtx} error={vddtxError} />
+                                    <SelectPower name="VBUS" handleChange={handlePowerChange} power={vpu} error={vpuError} />
+                                </Stack>
+                            }
+                            {
+                                power != 'Custom' && Object.keys(voltageSet).length !== 0 &&
+                                getVoltageSetUI()
+                            }
                         </Paper>
                     </Collapse>
 
