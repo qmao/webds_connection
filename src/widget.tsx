@@ -26,9 +26,11 @@ import { WebDSService } from '@webds/service';
 const I2C_ADDR_WIDTH = 100
 const SPEED_WIDTH = 100
 const POWER_WIDTH = 100
-const LEVEL1_SELECT_WIDTH = 120
+const LEVEL1_SELECT_WIDTH = 160
 const TITLE_WIDTH = 120
 const VOLTAGE_CONTENT_WIDTH = 58
+const VOLTAGE_TITLE_WIDTH = 55
+const VOLTAGE_GROUP_WIDTH = 240
 const SPEED_AUTO_SCAN = null
 const I2C_ADDR_AUTO_SCAN = '128'
 const SPI_MODE_AUTO_SCAN = -1
@@ -251,7 +253,7 @@ function SelectPower(
             display: 'flex',
             alignItems: "center",
         }}>
-            <Typography sx={{ p: 1, width: 55 }}>
+            <Typography sx={{ p: 1, width: VOLTAGE_TITLE_WIDTH }}>
                 {props.name}
             </Typography>
 
@@ -265,7 +267,7 @@ function SelectPower(
                 }}
             />
 
-            <Typography sx={{ p: 1 }}>
+            <Typography sx={{ pl: 2 }}>
                 mv
             </Typography>
         </Stack>
@@ -314,7 +316,7 @@ export default function ConnectionWidget(props: any) {
     const [load, setLoad] = React.useState(false);
 
     const [voltageSet, setVoltageSet] = React.useState({});
-    const [hardware, setHardware] = React.useState("TEST");
+    const [hardware, setHardware] = React.useState<string | null>(null);
     const [hardwareList, setHardwareList] = React.useState([]);
     const [voltageUser, setVoltageUser] = React.useState({ "VDDH": 0, "VDDL": 0, "VDD12": 0, "VBUS": 0 });
 
@@ -398,7 +400,7 @@ export default function ConnectionWidget(props: any) {
     }, [addr]);
 
     useEffect(() => {
-        console.log("[speed i2c]");
+        //console.log("[speed i2c]");
 
         let num = parseInt(speedI2c);
 
@@ -412,7 +414,7 @@ export default function ConnectionWidget(props: any) {
     }, [speedI2c]);
 
     useEffect(() => {
-        console.log("[speed spi]");
+        //console.log("[speed spi]");
 
         let num = parseInt(speedSpi);
 
@@ -494,7 +496,7 @@ export default function ConnectionWidget(props: any) {
     }, [vpu]);
 
     useEffect(() => {
-        console.log("set voltageUser:", voltageUser);
+        //console.log("set voltageUser:", voltageUser);
         if (Object.keys(voltageSet).length) {
             VOLTAGE_GROUP.map((v) => {
                 updateVoltages(v, voltageUser[v]);
@@ -503,7 +505,9 @@ export default function ConnectionWidget(props: any) {
     }, [voltageUser]);
 
     useEffect(() => {
-        console.log("set hardware:", hardware, voltageSet);
+        if (hardware == null)
+            return;
+        //console.log("set hardware:", hardware, voltageSet);
         if (Object.keys(voltageSet).length) {
             var newVoltageUser = Object.assign({}, voltageUser);
             VOLTAGE_GROUP.map((v) => {
@@ -525,8 +529,10 @@ export default function ConnectionWidget(props: any) {
                     setVled(jsonDefault['vled'])
                     setVddtx(jsonDefault['vddtx'])
                 }
+                setHardware(null);
                 break;
             case 'Custom':
+                setHardware(null);
                 break;
             default:
                 setHardware(power);
@@ -648,7 +654,9 @@ export default function ConnectionWidget(props: any) {
     };
 
     const handleVoltageChange = (voltage: string, newValue: string) => {
-        console.log("handleVoltageChange", voltage, newValue);
+        //console.log("handleVoltageChange", voltage, newValue);
+        if (newValue == null)
+            return;
         var newVoltageUser = Object.assign({}, voltageUser);
         newVoltageUser[voltage] = newValue;
         setVoltageUser(newVoltageUser);
@@ -672,9 +680,6 @@ export default function ConnectionWidget(props: any) {
     };
 
     const handlePowerChange = (event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, source: string) => {
-        console.log(event.target.value);
-        console.log(source);
-
         updateVoltages(source, event.target.value);
     };
 
@@ -699,8 +704,6 @@ export default function ConnectionWidget(props: any) {
     }
 
     function SetSpeed() {
-        console.log("[speed]");
-
         if (protocol == "auto")
             context.speed = SPEED_AUTO_SCAN;
         else if (protocol == "i2c")
@@ -784,7 +787,7 @@ export default function ConnectionWidget(props: any) {
                             display: 'flex',
                             alignItems: "center",
                         }}>
-                            <Typography sx={{ p: 1, width: 55 }}>
+                            <Typography sx={{ p: 1, width: VOLTAGE_TITLE_WIDTH }}>
                                 {target}
                             </Typography>
 
@@ -793,6 +796,8 @@ export default function ConnectionWidget(props: any) {
                                 exclusive
                                 value={voltageUser[target]}
                                 onChange={(e, value) => handleVoltageChange(target, value)}
+                                sx={{ minWidth: VOLTAGE_GROUP_WIDTH }}
+                                size="large"
                             >
                                 {
                                     voltageSet[hardware][target].map((item) => {
@@ -808,6 +813,10 @@ export default function ConnectionWidget(props: any) {
 
                                 }
                             </ToggleButtonGroup>
+
+                            <Typography sx={{ pl: 2 }}>
+                                mv
+                            </Typography>
                         </Stack>
                     );
                 })
@@ -930,8 +939,7 @@ export default function ConnectionWidget(props: any) {
                                 </Stack>
                             }
                             {
-                                power != 'Custom' && Object.keys(voltageSet).length !== 0 &&
-                                getVoltageSetUI()
+                                (hardware !== null) && getVoltageSetUI()
                             }
                         </Paper>
                     </Collapse>
