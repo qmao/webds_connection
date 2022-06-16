@@ -6,7 +6,7 @@ import {
 
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
-import { MainAreaWidget, WidgetTracker } from '@jupyterlab/apputils';
+import { WidgetTracker } from '@jupyterlab/apputils';
 
 import { ILauncher } from '@jupyterlab/launcher';
 
@@ -14,7 +14,7 @@ import { ShellWidget } from './widget'
 
 import { extensionConnectionIcon } from './icons';
 
-import { WebDSService } from '@webds/service';
+import { WebDSService, WebDSWidget } from '@webds/service';
 
 
 /**
@@ -54,7 +54,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         */
     }
 
-    let widget: MainAreaWidget;
+    let widget: WebDSWidget;
     const { commands, shell } = app;
     const command = CommandIDs.connection;
     const category = 'WebDS';
@@ -69,7 +69,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         if (!widget || widget.isDisposed) {
           let content = new ShellWidget(service);
 
-          widget = new MainAreaWidget<ShellWidget>({ content });
+          widget = new WebDSWidget<ShellWidget>({ content });
           widget.id = 'connection';
           widget.title.label = extension_string;
           widget.title.closable = true;
@@ -92,7 +92,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       category: category
     });
 
-    let tracker = new WidgetTracker<MainAreaWidget>({ namespace: 'webds_connection' });
+    let tracker = new WidgetTracker<WebDSWidget>({ namespace: 'webds_connection' });
     restorer.restore(tracker, { command, name: () => 'webds_connection' });
   }
 };
