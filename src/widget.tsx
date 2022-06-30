@@ -825,30 +825,15 @@ export default function ConnectionWidget(props: any) {
         );
     }
 
-    const webdsTheme = props.service.ui.getWebDSTheme();
+    function ShowContent() {
+        return (
+            <Stack direction="row" spacing={2}>
 
-    return (
-        <div className='jp-webds-widget-body'>
-            <ThemeProvider theme={webdsTheme}>
-                <Collapse in={isAlert}>
-                    <Alert severity={severity} onClose={() => setAlert(false)}>
-                        <AlertTitle> Result </AlertTitle>
-                        {  severity == 'info' &&
-                            info.map((value) => {
-                            return (
-                                <Chip label={value} />
-                            );
-                            })}
-                        {severity == 'error' && message }
-                    </Alert>
-                </Collapse>
-                <Stack spacing={1} sx={{
-                    flexDirection: 'column',
-                    display: 'flex',
-                    alignItems: "left",
-                    width: 400,
-                    ml: 3
-                }}>
+                <Stack spacing={1}
+                    direction="column"
+                    alignItems="flex-start"
+                    sx={{ width: 380, m: 2 }}
+                >
                     <div>
                         <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
                             <InputLabel id="connection-helper-label">Protocol</InputLabel>
@@ -896,7 +881,7 @@ export default function ConnectionWidget(props: any) {
                                         alignItems: "left",
                                     }}>
                                         <SelectSpiMode handleChange={handleSpiModeChange} mode={mode} />
-                                        <SelectSpeed handleChange={handleSpeedSpiChange} speed={speedSpi} error={speedSpiError} name='SPI Speed' unit='KHz'/>
+                                        <SelectSpeed handleChange={handleSpeedSpiChange} speed={speedSpi} error={speedSpiError} name='SPI Speed' unit='KHz' />
                                     </Stack>
                                 </Collapse>
                             </Stack>
@@ -946,17 +931,123 @@ export default function ConnectionWidget(props: any) {
 
                     <SelectAttn handleChange={handleAttnChange} attn={attn} />
 
-                    <Box sx={{ pt: 1, '& > :not(style)': { m: 1 } }}>
-                        <Button color="primary" variant="contained" onClick={() => ResetDefault()}>
-                            Reset
-                        </Button>
-                        <Button color="primary" variant="contained" onClick={() => UpdateSettings()}
-                            disabled={addrError || speedSpiError || speedI2cError || vddError || vddtxError || vledError || vpuError}>
-                            Apply
-                        </Button>
-                    </Box>
                 </Stack>
 
+                <Collapse in={isAlert} sx={{ pt: 2, pr : 2 }}>
+                    <Alert severity={severity} onClose={() => setAlert(false)}>
+                        <AlertTitle> Result </AlertTitle>
+                        <Box sx={{ whiteSpace: 'normal' }}>
+                        {severity == 'info' &&
+                            info.map((value) => {
+                                return (
+                                    <Chip label={value} sx={{ mt: 1, mr: 1 }}/>
+                                );
+                            })}
+                            {severity == 'error' && message}
+                         </Box>
+                    </Alert>
+                </Collapse>
+
+            </Stack>
+        );
+    }
+
+    function ShowControl() {
+        return (
+            <Stack direction="row" spacing={2}>
+                <Button color="primary" variant="contained" onClick={() => ResetDefault()}
+                    sx={{ width: 150 }}
+                >
+                    Reset
+                        </Button>
+                <Button color="primary" variant="contained" onClick={() => UpdateSettings()}
+                    disabled={addrError || speedSpiError || speedI2cError || vddError || vddtxError || vledError || vpuError}
+                    sx={{ width: 150 }}
+                >
+                    Apply
+                        </Button>
+            </Stack>
+        );
+    }
+
+
+    const WIDTH = 800;
+    const HEIGHT_TITLE = 70;
+
+    function showAll() {
+        return (
+            <Stack spacing={2}>
+                <Box
+                    sx={{
+                        width: WIDTH + "px",
+                        height: HEIGHT_TITLE + "px",
+                        position: "relative",
+                        bgcolor: "section.main"
+                    }}
+                >
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)"
+                        }}
+                    >
+                        Connection
+          </Typography>
+                    <Button
+                        variant="text"
+                        sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "16px",
+                            transform: "translate(0%, -50%)"
+                        }}
+                    >
+                        <Typography variant="body2" sx={{ textDecoration: "underline" }}>
+                            Help
+            </Typography>
+                    </Button>
+                </Box>
+
+                <Stack
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="stretch"
+
+                    sx={{
+                        width: WIDTH + "px",
+                        bgcolor: "section.main",
+                        py: 3
+                    }}
+                >
+                    {ShowContent()}
+                </Stack>
+                <Stack
+                    direction="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    sx={{
+                        width: WIDTH + "px",
+                        bgcolor: "section.main",
+                        py: 2,
+                    }}
+                >
+                    {ShowControl()}
+                </Stack>
+            </Stack>
+
+        );
+    }
+
+
+    const webdsTheme = props.service.ui.getWebDSTheme();
+
+    return (
+        <div className='jp-webds-widget-body'>
+            <ThemeProvider theme={webdsTheme}>
+                { showAll()}
                 <div>
                     <Backdrop
                         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
