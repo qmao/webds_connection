@@ -827,12 +827,25 @@ export default function ConnectionWidget(props: any) {
 
     function ShowContent() {
         return (
-            <Stack direction="row" spacing={2}>
-
+            <div>
+                <Collapse in={isAlert}>
+                    <Alert severity={severity} onClose={() => setAlert(false)}>
+                        <AlertTitle> Result </AlertTitle>
+                        <Box sx={{ whiteSpace: 'normal' }}>
+                            {severity == 'info' &&
+                                info.map((value) => {
+                                    return (
+                                        <Chip label={value} sx={{ mt: 1, mr: 1 }} />
+                                    );
+                                })}
+                            {severity == 'error' && message}
+                        </Box>
+                    </Alert>
+                </Collapse>
                 <Stack spacing={1}
                     direction="column"
                     alignItems="flex-start"
-                    sx={{ width: 380, m: 2 }}
+                    sx={{ width: 500, ml: 5, my: 3}}
                 >
                     <div>
                         <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
@@ -932,23 +945,7 @@ export default function ConnectionWidget(props: any) {
                     <SelectAttn handleChange={handleAttnChange} attn={attn} />
 
                 </Stack>
-
-                <Collapse in={isAlert} sx={{ pt: 2, pr : 2 }}>
-                    <Alert severity={severity} onClose={() => setAlert(false)}>
-                        <AlertTitle> Result </AlertTitle>
-                        <Box sx={{ whiteSpace: 'normal' }}>
-                        {severity == 'info' &&
-                            info.map((value) => {
-                                return (
-                                    <Chip label={value} sx={{ mt: 1, mr: 1 }}/>
-                                );
-                            })}
-                            {severity == 'error' && message}
-                         </Box>
-                    </Alert>
-                </Collapse>
-
-            </Stack>
+            </div>
         );
     }
 
@@ -996,19 +993,7 @@ export default function ConnectionWidget(props: any) {
                     >
                         Connection
           </Typography>
-                    <Button
-                        variant="text"
-                        sx={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "16px",
-                            transform: "translate(0%, -50%)"
-                        }}
-                    >
-                        <Typography variant="body2" sx={{ textDecoration: "underline" }}>
-                            Help
-            </Typography>
-                    </Button>
+
                 </Box>
 
                 <Stack
@@ -1019,7 +1004,6 @@ export default function ConnectionWidget(props: any) {
                     sx={{
                         width: WIDTH + "px",
                         bgcolor: "section.main",
-                        py: 3
                     }}
                 >
                     {ShowContent()}
