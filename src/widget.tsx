@@ -951,22 +951,37 @@ export default function ConnectionWidget(props: any) {
 
     function ShowControl() {
         return (
-            <Stack direction="row" spacing={2}>
-                <Button color="primary" variant="contained" onClick={() => ResetDefault()}
+            <Stack direction="row"
+                justifyContent="center"
+                spacing={2}>
+                <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={() => ResetDefault()}
                     sx={{ width: 150 }}
                 >
                     Reset
-                        </Button>
-                <Button color="primary" variant="contained" onClick={() => UpdateSettings()}
-                    disabled={addrError || speedSpiError || speedI2cError || vddError || vddtxError || vledError || vpuError}
+        </Button>
+                <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={() => UpdateSettings()}
+                    disabled={
+                        addrError ||
+                        speedSpiError ||
+                        speedI2cError ||
+                        vddError ||
+                        vddtxError ||
+                        vledError ||
+                        vpuError
+                    }
                     sx={{ width: 150 }}
                 >
                     Apply
-                        </Button>
+        </Button>
             </Stack>
         );
     }
-
 
     const WIDTH = 800;
     const HEIGHT_TITLE = 70;
@@ -974,7 +989,7 @@ export default function ConnectionWidget(props: any) {
     function showAll() {
         return (
             <Stack spacing={2}>
-                <Box
+                <Paper elevation={0}
                     sx={{
                         width: WIDTH + "px",
                         height: HEIGHT_TITLE + "px",
@@ -993,35 +1008,26 @@ export default function ConnectionWidget(props: any) {
                     >
                         Connection
           </Typography>
+                </Paper>
 
-                </Box>
-
-                <Stack
-                    direction="column"
-                    justifyContent="center"
-                    alignItems="stretch"
-
+                <Paper elevation={0}
                     sx={{
                         width: WIDTH + "px",
-                        bgcolor: "section.main",
+                        bgcolor: "section.main"
                     }}
                 >
                     {ShowContent()}
-                </Stack>
-                <Stack
-                    direction="row"
-                    justifyContent="center"
-                    alignItems="center"
+                </Paper>
+                <Paper elevation={0}
                     sx={{
                         width: WIDTH + "px",
                         bgcolor: "section.main",
-                        py: 2,
+                        py: 2
                     }}
                 >
                     {ShowControl()}
-                </Stack>
+                </Paper>
             </Stack>
-
         );
     }
 
