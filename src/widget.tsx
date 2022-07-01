@@ -5,18 +5,17 @@ import { UserContext } from './context';
 import { requestAPI } from './handler';
 
 import {
-    MenuItem, InputLabel, Stack, Collapse, Paper,
+    MenuItem, Stack, Collapse, Paper,
     Typography, TextField,
-    FormControl,
     Box,
     Button,
     Alert, AlertTitle,
     Chip,
     Backdrop,
-    ToggleButtonGroup, ToggleButton
+    ToggleButtonGroup, ToggleButton,
+    CircularProgress
 } from '@mui/material';
 
-import CircularProgress from '@mui/material/CircularProgress';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 
@@ -26,6 +25,7 @@ import { WebDSService } from '@webds/service';
 const I2C_ADDR_WIDTH = 100
 const SPEED_WIDTH = 100
 const POWER_WIDTH = 100
+const LEVEL1_SELECT_TITLE_WIDTH = 70
 const LEVEL1_SELECT_WIDTH = 160
 const TITLE_WIDTH = 120
 const VOLTAGE_CONTENT_WIDTH = 58
@@ -152,21 +152,18 @@ function SelectAttn(
     }) {
 
     return (
-        <div>
-            <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
-                <InputLabel id="connection-select-spi-label">Attn</InputLabel>
+        <Stack direction="row" alignItems="center" spacing={2}>
+            <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Attention </Typography>
                 <Select
-                    labelId="connection-select-spi-label"
                     id="connection-select-spi"
-                    label="Attn"
                     value={props.attn.toString()}
-                    onChange={props.handleChange}
+                onChange={props.handleChange}
+                sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
                 >
                     <MenuItem value={1}>Interrupt</MenuItem>
                     <MenuItem value={0}>Polling</MenuItem>
                 </Select>
-            </FormControl>
-        </div>
+        </Stack>
     );
 }
 
@@ -847,25 +844,22 @@ export default function ConnectionWidget(props: any) {
                     alignItems="flex-start"
                     sx={{ width: 500, ml: 5, my: 3}}
                 >
-                    <div>
-                        <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
-                            <InputLabel id="connection-helper-label">Protocol</InputLabel>
-                            <Select
-                                labelId="connection-helper-label"
-                                id="connection-helper"
-                                label="Protocol"
-                                onChange={handleChange}
-                                value={protocol}
-                            >
-                                <MenuItem value={"auto"}>Auto Scan</MenuItem>
-                                {interfaces.map((value) => {
-                                    return (
-                                        <MenuItem value={value}>{value}</MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </FormControl>
-                    </div>
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                        <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Protocol </Typography>
+                        <Select
+                            id="connection-helper"
+                            onChange={handleChange}
+                            value={protocol}
+                            sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
+                        >
+                            <MenuItem value={"auto"}>Auto Scan</MenuItem>
+                            {interfaces.map((value) => {
+                                return (
+                                    <MenuItem value={value}>{value}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </Stack>
 
                     <Collapse in={showProtocol}>
                         <Paper variant="outlined" square sx={{ ml: 1 }}>
@@ -902,14 +896,13 @@ export default function ConnectionWidget(props: any) {
                     </Collapse>
 
                     <div>
-                        <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
-                            <InputLabel id="connection-power-label">Voltage</InputLabel>
+                        <Stack direction="row" alignItems="center" spacing={2}>
+                            <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Voltage </Typography>
                             <Select
-                                labelId="connection-power-label"
                                 id="connection-power"
-                                label="Voltage"
                                 onChange={handlePowerSelectChange}
                                 value={power}
+                                sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
                             >
                                 {['Default', 'Custom', ...hardwareList].map((value) => {
                                     return (
@@ -917,7 +910,7 @@ export default function ConnectionWidget(props: any) {
                                     );
                                 })}
                             </Select>
-                        </FormControl>
+                        </Stack>
                     </div>
 
                     <Collapse in={power != 'Default'}>
@@ -953,7 +946,7 @@ export default function ConnectionWidget(props: any) {
         return (
             <Stack direction="row"
                 justifyContent="center"
-                spacing={2}>
+                spacing={4}>
                 <Button
                     color="primary"
                     variant="contained"
