@@ -5,17 +5,18 @@ import { UserContext } from './context';
 import { requestAPI } from './handler';
 
 import {
-    MenuItem, Stack, Collapse, Paper,
+    MenuItem, InputLabel, Stack, Collapse, Paper,
     Typography, TextField,
+    FormControl,
     Box,
     Button,
     Alert, AlertTitle,
     Chip,
     Backdrop,
-    ToggleButtonGroup, ToggleButton,
-    CircularProgress
+    ToggleButtonGroup, ToggleButton
 } from '@mui/material';
 
+import CircularProgress from '@mui/material/CircularProgress';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 
@@ -25,7 +26,6 @@ import { WebDSService } from '@webds/service';
 const I2C_ADDR_WIDTH = 100
 const SPEED_WIDTH = 100
 const POWER_WIDTH = 100
-const LEVEL1_SELECT_TITLE_WIDTH = 70
 const LEVEL1_SELECT_WIDTH = 160
 const TITLE_WIDTH = 120
 const VOLTAGE_CONTENT_WIDTH = 58
@@ -152,18 +152,21 @@ function SelectAttn(
     }) {
 
     return (
-        <Stack direction="row" alignItems="center" spacing={2}>
-            <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Attention </Typography>
+        <div>
+            <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
+                <InputLabel id="connection-select-spi-label">Attn</InputLabel>
                 <Select
+                    labelId="connection-select-spi-label"
                     id="connection-select-spi"
+                    label="Attn"
                     value={props.attn.toString()}
-                onChange={props.handleChange}
-                sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
+                    onChange={props.handleChange}
                 >
                     <MenuItem value={1}>Interrupt</MenuItem>
                     <MenuItem value={0}>Polling</MenuItem>
                 </Select>
-        </Stack>
+            </FormControl>
+        </div>
     );
 }
 
@@ -844,22 +847,25 @@ export default function ConnectionWidget(props: any) {
                     alignItems="flex-start"
                     sx={{ width: 500, ml: 5, my: 3}}
                 >
-                    <Stack direction="row" alignItems="center" spacing={2}>
-                        <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Protocol </Typography>
-                        <Select
-                            id="connection-helper"
-                            onChange={handleChange}
-                            value={protocol}
-                            sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
-                        >
-                            <MenuItem value={"auto"}>Auto Scan</MenuItem>
-                            {interfaces.map((value) => {
-                                return (
-                                    <MenuItem value={value}>{value}</MenuItem>
-                                );
-                            })}
-                        </Select>
-                    </Stack>
+                    <div>
+                        <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
+                            <InputLabel id="connection-helper-label">Protocol</InputLabel>
+                            <Select
+                                labelId="connection-helper-label"
+                                id="connection-helper"
+                                label="Protocol"
+                                onChange={handleChange}
+                                value={protocol}
+                            >
+                                <MenuItem value={"auto"}>Auto Scan</MenuItem>
+                                {interfaces.map((value) => {
+                                    return (
+                                        <MenuItem value={value}>{value}</MenuItem>
+                                    );
+                                })}
+                            </Select>
+                        </FormControl>
+                    </div>
 
                     <Collapse in={showProtocol}>
                         <Paper variant="outlined" square sx={{ ml: 1 }}>
@@ -896,13 +902,14 @@ export default function ConnectionWidget(props: any) {
                     </Collapse>
 
                     <div>
-                        <Stack direction="row" alignItems="center" spacing={2}>
-                            <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Voltage </Typography>
+                        <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
+                            <InputLabel id="connection-power-label">Voltage</InputLabel>
                             <Select
+                                labelId="connection-power-label"
                                 id="connection-power"
+                                label="Voltage"
                                 onChange={handlePowerSelectChange}
                                 value={power}
-                                sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
                             >
                                 {['Default', 'Custom', ...hardwareList].map((value) => {
                                     return (
@@ -910,7 +917,7 @@ export default function ConnectionWidget(props: any) {
                                     );
                                 })}
                             </Select>
-                        </Stack>
+                        </FormControl>
                     </div>
 
                     <Collapse in={power != 'Default'}>
@@ -944,37 +951,22 @@ export default function ConnectionWidget(props: any) {
 
     function ShowControl() {
         return (
-            <Stack direction="row"
-                justifyContent="center"
-                spacing={4}>
-                <Button
-                    color="primary"
-                    variant="contained"
-                    onClick={() => ResetDefault()}
+            <Stack direction="row" spacing={4}>
+                <Button color="primary" variant="contained" onClick={() => ResetDefault()}
                     sx={{ width: 150 }}
                 >
                     Reset
-        </Button>
-                <Button
-                    color="primary"
-                    variant="contained"
-                    onClick={() => UpdateSettings()}
-                    disabled={
-                        addrError ||
-                        speedSpiError ||
-                        speedI2cError ||
-                        vddError ||
-                        vddtxError ||
-                        vledError ||
-                        vpuError
-                    }
+                        </Button>
+                <Button color="primary" variant="contained" onClick={() => UpdateSettings()}
+                    disabled={addrError || speedSpiError || speedI2cError || vddError || vddtxError || vledError || vpuError}
                     sx={{ width: 150 }}
                 >
                     Apply
-        </Button>
+                        </Button>
             </Stack>
         );
     }
+
 
     const WIDTH = 800;
     const HEIGHT_TITLE = 70;
@@ -982,7 +974,7 @@ export default function ConnectionWidget(props: any) {
     function showAll() {
         return (
             <Stack spacing={2}>
-                <Paper elevation={0}
+                <Box
                     sx={{
                         width: WIDTH + "px",
                         height: HEIGHT_TITLE + "px",
@@ -1001,26 +993,35 @@ export default function ConnectionWidget(props: any) {
                     >
                         Connection
           </Typography>
-                </Paper>
 
-                <Paper elevation={0}
-                    sx={{
-                        width: WIDTH + "px",
-                        bgcolor: "section.main"
-                    }}
-                >
-                    {ShowContent()}
-                </Paper>
-                <Paper elevation={0}
+                </Box>
+
+                <Stack
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="stretch"
+
                     sx={{
                         width: WIDTH + "px",
                         bgcolor: "section.main",
-                        py: 2
+                    }}
+                >
+                    {ShowContent()}
+                </Stack>
+                <Stack
+                    direction="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    sx={{
+                        width: WIDTH + "px",
+                        bgcolor: "section.main",
+                        py: 2,
                     }}
                 >
                     {ShowControl()}
-                </Paper>
+                </Stack>
             </Stack>
+
         );
     }
 
