@@ -4,8 +4,6 @@ import {
   ILayoutRestorer
 } from '@jupyterlab/application';
 
-import { ISettingRegistry } from '@jupyterlab/settingregistry';
-
 import { WidgetTracker } from '@jupyterlab/apputils';
 
 import { ILauncher } from '@jupyterlab/launcher';
@@ -30,29 +28,13 @@ namespace CommandIDs {
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'connection:plugin',
   autoStart: true,
-  optional: [ISettingRegistry],
   requires: [ILauncher, ILayoutRestorer, WebDSService],
   activate: (
     app: JupyterFrontEnd,
     launcher: ILauncher,
     restorer: ILayoutRestorer,
-    service: WebDSService,
-    settingRegistry: ISettingRegistry | null) => {
+    service: WebDSService ) => {
     console.log('JupyterLab extension connection is activated!');
-
-    if (settingRegistry) {
-        console.log(settingRegistry);
-        /*
-        settingRegistry
-        .load(plugin.id)
-        .then(settings => {
-          console.log('connection settings loaded:', settings.composite);
-        })
-        .catch(reason => {
-          console.error('Failed to load settings for connection.', reason);
-        });
-        */
-    }
 
     let widget: WebDSWidget;
     const { commands, shell } = app;
