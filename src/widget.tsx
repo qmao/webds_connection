@@ -1,7 +1,6 @@
 import { ReactWidget } from '@jupyterlab/apputils';
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import { UserContext } from './context';
 import { requestAPI } from './handler';
 
 import {
@@ -278,7 +277,6 @@ function SelectPower(
 type SeverityType = 'error' | 'info' | 'success' | 'warning';
 
 export default function ConnectionWidget(props: any) {
-    //const context = useContext(UserContext);
     const [interfaces, setInterfaces] = React.useState([]);
     const [defaultJson, setDefaultJson] = React.useState('');
     const [protocol, setProtocol] = React.useState('auto');
@@ -322,7 +320,17 @@ export default function ConnectionWidget(props: any) {
 
     const powerJson = useRef({});
 
-    const context = useContext(UserContext);
+    const context = {
+        interfaces: ["i2c"],
+        i2cAddr: 128,
+        spiMode: -1,
+        speed: null,
+        useAttn: false,
+        vdd: 1800,
+        vddtx: 1200,
+        vled: 3300,
+        vpu: 1800,
+    };
 
     useEffect(() => {
         getJson();
