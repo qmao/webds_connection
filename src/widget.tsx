@@ -41,6 +41,7 @@ const DEFAULT_POWER_VLED = '3300'
 const DEFAULT_POWER_VPU = '1800'
 const DEFAULT_SPEED_I2C = '1000'
 const DEFAULT_SPEED_SPI = '15000'
+const HEIGHT_CONTROLS = 100
 
 const VOLTAGE_GROUP = ["VDDL", "VDDH", "VDD12", "VBUS"];
 const VOLTAGE_SET = {
@@ -1021,8 +1022,8 @@ export default function ConnectionWidget(props: any) {
                     alignItems="center"
                     sx={{
                         width: WIDTH + "px",
+                        minHeight: HEIGHT_CONTROLS + "px",
                         bgcolor: "section.main",
-                        py: 2,
                     }}
                 >
                     {ShowControl()}
