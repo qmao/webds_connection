@@ -4,24 +4,26 @@ import React, { useEffect, useRef, useState } from 'react';
 import { requestAPI } from './handler';
 
 import {
-    MenuItem, InputLabel, Stack, Collapse, Paper,
+    MenuItem, Stack, Collapse, Paper,
     Typography, TextField,
-    FormControl,
     Box,
     Button,
     Alert, AlertTitle,
     Chip,
     Backdrop,
-    ToggleButtonGroup, ToggleButton
+    ToggleButtonGroup,
+    ToggleButton,
+    CircularProgress,
+    CssBaseline
 } from '@mui/material';
 
-import CircularProgress from '@mui/material/CircularProgress';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 
 import { ThemeProvider } from "@mui/material/styles";
 import { WebDSService } from '@webds/service';
 
+const LEVEL1_SELECT_TITLE_WIDTH = 70
 const I2C_ADDR_WIDTH = 100
 const SPEED_WIDTH = 100
 const POWER_WIDTH = 100
@@ -151,21 +153,20 @@ function SelectAttn(
     }) {
 
     return (
-        <div>
-            <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
-                <InputLabel id="connection-select-spi-label">Attn</InputLabel>
+        <CssBaseline>
+            <Stack direction="row" alignItems="center" spacing={2}>
+                <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Attention </Typography>
                 <Select
-                    labelId="connection-select-spi-label"
                     id="connection-select-spi"
-                    label="Attn"
                     value={props.attn.toString()}
                     onChange={props.handleChange}
+                    sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
                 >
                     <MenuItem value={1}>Interrupt</MenuItem>
                     <MenuItem value={0}>Polling</MenuItem>
                 </Select>
-            </FormControl>
-        </div>
+            </Stack>
+        </CssBaseline>
     );
 }
 
@@ -855,15 +856,14 @@ export default function ConnectionWidget(props: any) {
                     alignItems="flex-start"
                     sx={{ width: 500, ml: 5, my: 3}}
                 >
-                    <div>
-                        <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
-                            <InputLabel id="connection-helper-label">Protocol</InputLabel>
+                    <CssBaseline>
+                        <Stack direction="row" alignItems="center" spacing={2}>
+                            <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Protocol </Typography>
                             <Select
-                                labelId="connection-helper-label"
                                 id="connection-helper"
-                                label="Protocol"
                                 onChange={handleChange}
                                 value={protocol}
+                                sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
                             >
                                 <MenuItem value={"auto"}>Auto Scan</MenuItem>
                                 {interfaces.map((value) => {
@@ -872,11 +872,11 @@ export default function ConnectionWidget(props: any) {
                                     );
                                 })}
                             </Select>
-                        </FormControl>
-                    </div>
+                        </Stack>
+                    </CssBaseline>
 
                     <Collapse in={showProtocol}>
-                        <Paper variant="outlined" square sx={{ ml: 1 }}>
+                        <Paper variant="outlined" square sx={{ ml: 11, minWidth: 340 }}>
                             <Stack spacing={1} sx={{
                                 flexDirection: 'column',
                                 display: 'flex',
@@ -909,15 +909,14 @@ export default function ConnectionWidget(props: any) {
                         </Paper>
                     </Collapse>
 
-                    <div>
-                        <FormControl variant="standard" sx={{ m: 1, width: LEVEL1_SELECT_WIDTH }}>
-                            <InputLabel id="connection-power-label">Voltage</InputLabel>
+                    <CssBaseline>
+                        <Stack direction="row" alignItems="center" spacing={2}>
+                            <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Voltage </Typography>
                             <Select
-                                labelId="connection-power-label"
                                 id="connection-power"
-                                label="Voltage"
                                 onChange={handlePowerSelectChange}
                                 value={power}
+                                sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
                             >
                                 {['Default', 'Custom', ...hardwareList].map((value) => {
                                     return (
@@ -925,11 +924,11 @@ export default function ConnectionWidget(props: any) {
                                     );
                                 })}
                             </Select>
-                        </FormControl>
-                    </div>
+                        </Stack>
+                    </CssBaseline>
 
                     <Collapse in={power != 'Default'}>
-                        <Paper variant="outlined" square sx={{ ml: 1 }}>
+                        <Paper variant="outlined" square sx={{ ml: 11, minWidth: 340 }}>
                             {
                                 power == 'Custom' &&
                                 <Stack spacing={1} sx={{
@@ -982,7 +981,7 @@ export default function ConnectionWidget(props: any) {
     function showAll() {
         return (
             <Stack spacing={2}>
-                <Box
+                <Paper elevation={0}
                     sx={{
                         width: WIDTH + "px",
                         height: HEIGHT_TITLE + "px",
@@ -1000,9 +999,9 @@ export default function ConnectionWidget(props: any) {
                         }}
                     >
                         Connection
-          </Typography>
+                    </Typography>
 
-                </Box>
+                </Paper>
 
                 <Stack
                     direction="column"
