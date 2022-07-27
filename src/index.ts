@@ -39,7 +39,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     let widget: WebDSWidget;
     const { commands, shell } = app;
     const command = CommandIDs.connection;
-    const category = 'WebDS';
+    const category = 'Touch - Bootstrapping';
     const extension_string = 'Connection';
 
 
@@ -71,7 +71,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // Add launcher
     launcher.add({
       command: command,
-      category: category
+      category: category,
+      rank: 30
     });
 
     let tracker = new WidgetTracker<WebDSWidget>({ namespace: 'webds_connection' });
