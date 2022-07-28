@@ -39,7 +39,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     let widget: WebDSWidget;
     const { commands, shell } = app;
     const command = CommandIDs.connection;
-    const category = 'Touch - Bootstrapping';
+    const category = 'DSDK Applications';
     const extension_string = 'Connection';
 
 
