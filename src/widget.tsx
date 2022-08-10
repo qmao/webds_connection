@@ -13,8 +13,7 @@ import {
     Backdrop,
     ToggleButtonGroup,
     ToggleButton,
-    CircularProgress,
-    CssBaseline
+    CircularProgress
 } from '@mui/material';
 
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -154,9 +153,10 @@ function SelectAttn(
     }) {
 
     return (
-        <CssBaseline>
-            <Stack direction="row" alignItems="center" spacing={2}>
-                <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Attention </Typography>
+        <Stack direction="row" alignItems="center" spacing={2}>
+                <Paper elevation={0} sx={{ bgcolor: 'transparent' }}>
+                    <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Attention </Typography>
+                </Paper>
                 <Select
                     id="connection-select-spi"
                     value={props.attn.toString()}
@@ -167,7 +167,6 @@ function SelectAttn(
                     <MenuItem value={0}>Polling</MenuItem>
                 </Select>
             </Stack>
-        </CssBaseline>
     );
 }
 
@@ -857,24 +856,24 @@ export default function ConnectionWidget(props: any) {
                     alignItems="flex-start"
                     sx={{ width: 500, ml: 5, my: 3}}
                 >
-                    <CssBaseline>
-                        <Stack direction="row" alignItems="center" spacing={2}>
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                        <Paper elevation={0} sx={{ bgcolor: 'transparent' }}>
                             <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Protocol </Typography>
-                            <Select
-                                id="connection-helper"
-                                onChange={handleChange}
-                                value={protocol}
-                                sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
-                            >
-                                <MenuItem value={"auto"}>Auto Scan</MenuItem>
-                                {interfaces.map((value) => {
-                                    return (
-                                        <MenuItem value={value}>{value}</MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </Stack>
-                    </CssBaseline>
+                        </Paper>
+                        <Select
+                            id="connection-helper"
+                            onChange={handleChange}
+                            value={protocol}
+                            sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
+                        >
+                            <MenuItem value={"auto"}>Auto Scan</MenuItem>
+                            {interfaces.map((value) => {
+                                return (
+                                    <MenuItem value={value}>{value}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </Stack>
 
                     <Collapse in={showProtocol}>
                         <Paper variant="outlined" square sx={{ ml: 11, minWidth: 340 }}>
@@ -910,23 +909,23 @@ export default function ConnectionWidget(props: any) {
                         </Paper>
                     </Collapse>
 
-                    <CssBaseline>
-                        <Stack direction="row" alignItems="center" spacing={2}>
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                        <Paper elevation={0} sx={{ bgcolor: 'transparent' }}>
                             <Typography sx={{ minWidth: LEVEL1_SELECT_TITLE_WIDTH }}> Voltage </Typography>
-                            <Select
-                                id="connection-power"
-                                onChange={handlePowerSelectChange}
-                                value={power}
-                                sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
-                            >
-                                {['Default', 'Custom', ...hardwareList].map((value) => {
-                                    return (
-                                        <MenuItem value={value}>{value}</MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </Stack>
-                    </CssBaseline>
+                        </Paper>
+                        <Select
+                            id="connection-power"
+                            onChange={handlePowerSelectChange}
+                            value={power}
+                            sx={{ minWidth: LEVEL1_SELECT_WIDTH }}
+                        >
+                            {['Default', 'Custom', ...hardwareList].map((value) => {
+                                return (
+                                    <MenuItem value={value}>{value}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </Stack>
 
                     <Collapse in={power != 'Default'}>
                         <Paper variant="outlined" square sx={{ ml: 11, minWidth: 340 }}>
@@ -1058,13 +1057,15 @@ export default function ConnectionWidget(props: any) {
 * A Counter Lumino Widget that wraps a CounterComponent.
 */
 export class ShellWidget extends ReactWidget {
+    id: string;
     service: WebDSService;
     /**
     * Constructs a new CounterWidget.
     */
-    constructor(service: WebDSService) {
+    constructor(id: string, service: WebDSService) {
         super();
         this.addClass('jp-webds-widget');
+        this.id = id;
         this.service = service
         console.log("TabPanelUiWidget is created!!!");
     }
@@ -1074,6 +1075,14 @@ export class ShellWidget extends ReactWidget {
     }
 
     render(): JSX.Element {
-        return <ConnectionWidget service={this.service}/>;
+        return (
+            <div id={this.id + "_container"} className="jp-webds-widget-container">
+                <div id={this.id + "_content"} className="jp-webds-widget">
+                    <ConnectionWidget service={this.service} />
+                </div>
+                <div className="jp-webds-widget-shadow jp-webds-widget-shadow-top"></div>
+                <div className="jp-webds-widget-shadow jp-webds-widget-shadow-bottom"></div>
+            </div>
+            )
     }
 }
