@@ -113,13 +113,14 @@ export default function SwipeableTextMobileStepper(props: any) {
           align="center"
         >
           {m} {""}
-        <Link
-          target="_blank"
-          href="https://developer.android.com/studio/command-line/adb?gclid=Cj0KCQjwgO2XBhCaARIsANrW2X1W1EUq68VwHTP1AFEtJRQ--chgT5Oy9ewXDx7T82dvXmUsTPZs_3MaArvIEALw_wcB&gclsrc=aw.ds#connect-to-a-device-over-wi-fi-android-11+"
-          rel="noreferrer"
-        >
-          Link
-        </Link>
+          <Link
+            target="_blank"
+            href="https://developer.android.com/studio/command-line/adb?gclid=Cj0KCQjwgO2XBhCaARIsANrW2X1W1EUq68VwHTP1AFEtJRQ--chgT5Oy9ewXDx7T82dvXmUsTPZs_3MaArvIEALw_wcB&gclsrc=aw.ds#connect-to-a-device-over-wi-fi-android-11+"
+            rel="noreferrer"
+          >
+            Link
+          </Link>
+		</Typography>
       </Stack>
     );
   }
