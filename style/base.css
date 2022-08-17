@@ -1,0 +1,34 @@
+.jp-enableWifiDebugImage {
+  background-size: 100%;
+  width:360px;
+  height:731px;
+  background-image: url(enableWifiDebug.jpg);
+}
+
+.jp-allowWirelessDebugImage {
+  background-size: 100%;
+  width:360px;
+  height:731px;
+  background-image: url(allowWirelessDebug.jpg);
+}
+
+.jp-getIpPortImage {
+  background-size: 100%;
+  width:360px;
+  height:450px;
+  background-image: url(getIpPort.jpg);
+}
+
+.jp-pairDeviceImage {
+  background-size: 100%;
+  width:360px;
+  height:450px;
+  background-image: url(pairDevice.jpg);
+}
+
+.jp-pairingCodeImage {
+  background-size: 100%;
+  width:360px;
+  height:731px;
+  background-image: url(pairingCode.jpg);
+}
