@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 
 import { Button, Stack, Chip, TextField, Link, Typography, Paper, Box } from "@mui/material";
+import { requestAPI } from "./handler";
 
 import StarRateIcon from "@mui/icons-material/StarRate";
 import WifiSettings from "./wifi";
@@ -17,39 +18,35 @@ export default function SwipeableTextMobileStepper(props: any) {
   const [pairingCode, setPairingCode] = useState("");
   const [applyResult, setApplyResult] = useState("");
 
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  ///const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  const SendPair = async (): Promise<string> => {
-    await delay(1200);
-    let data = {
-      ipAddress: { ipAddress },
-      pairPort: { pairPort },
-      pairingCode: { pairingCode }
+  const SendPairConnect = async (): Promise<string> => {
+    let dataToSend = {
+      ip: ipAddress,
+      pairPort: pairPort,
+      connectPort: connectPort,
+      pairingCode: pairingCode
     };
-    console.log(data);
-    return Promise.resolve("Pair Success");
-  };
 
-  const SendConnect = async (): Promise<string> => {
-    await delay(1200);
-    let data = {
-      ipAddress: { ipAddress },
-      connectPort: { connectPort }
-    };
-    console.log(data);
-    return Promise.resolve("Connect Success");
+    const reply = await requestAPI<any>("settings/adb", {
+      body: JSON.stringify(dataToSend),
+      method: "POST"
+    });
+    console.log(reply);
+    return Promise.resolve(JSON.stringify(reply));
   };
 
   const onClickApplyWifiADB = (event: any) => {
     setApplyResult("");
-    SendPair()
-      .then(() => {
-        setApplyResult("pairing success");
-        return SendConnect();
-      })
-      .then(() => {
-        setApplyResult("connect success");
-        console.log("connect done");
+    SendPairConnect()
+      .then((ret) => {
+		let dict = JSON.parse(ret!);
+		let message = "";
+		if (dict["pair"] === true)
+			message = message + " Pair Pass. "
+		if (dict["connect"] === true)
+			message = message + " Connect Pass. "
+        setApplyResult(message);
       })
       .catch((e) => {
         setApplyResult(e);
