@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 
 
-import { Button, Stack, Chip, TextField, Link, Typography, Paper, Box } from "@mui/material";
+import { Button, Stack, Chip, TextField, Link, Typography, Paper, Box, IconButton, Tooltip } from "@mui/material";
 import { requestAPI } from "./handler";
 
 import StarRateIcon from "@mui/icons-material/StarRate";
+import WifiOffIcon from '@mui/icons-material/WifiOff';
 import WifiSettings from "./wifi";
 
 const TEXT_WIDTH_IP = 350;
@@ -19,9 +20,38 @@ export default function SwipeableTextMobileStepper(props: any) {
   const [applyResult, setApplyResult] = useState("");
 
   ///const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  
+  /*
+  const SendCheckStatus = async (): Promise<boolean> => {
+
+	let url = "settings/adb";
+
+    const reply = await requestAPI<any>(url, {
+      method: "GET"
+    });
+    console.log(reply);
+
+    return Promise.resolve(reply["connected"]);
+  };
+  */
+
+  const SendDisconnect = async (): Promise<string> => {
+    let dataToSend = {
+      action: "disconnect"
+    };
+
+    const reply = await requestAPI<any>("settings/adb", {
+      body: JSON.stringify(dataToSend),
+      method: "POST"
+    });
+    console.log(reply);
+    return Promise.resolve(JSON.stringify(reply));
+  };
+  
 
   const SendPairConnect = async (): Promise<string> => {
     let dataToSend = {
+      action: "connect",
       ip: ipAddress,
       pairPort: pairPort,
       connectPort: connectPort,
@@ -47,6 +77,18 @@ export default function SwipeableTextMobileStepper(props: any) {
 		if (dict["connect"] === true)
 			message = message + " Connect Pass. "
         setApplyResult(message);
+      })
+      .catch((e) => {
+        setApplyResult(e);
+        console.log(e);
+      });
+  };
+  
+    const onClickAdbDisconnect = (event: any) => {
+    setApplyResult("");
+    SendDisconnect()
+      .then((ret) => {
+		console.log(ret);
       })
       .catch((e) => {
         setApplyResult(e);
@@ -328,18 +370,27 @@ export default function SwipeableTextMobileStepper(props: any) {
               {showConnectionSetting("Pair Port", "pairPort", pairPort)}
             </Stack>
           </Paper>
-          <Button
-            onClick={onClickApplyWifiADB}
-            variant="outlined"
-            disabled={
-              pairPort === "" ||
-              ipAddress === "" ||
-              pairingCode === "" ||
-              connectPort === ""
-            }
-          >
-            Connect
-          </Button>
+		  <Stack direction="row" justifyContent="space-between" spacing={3}>
+		    <Tooltip title="ADB Disconnect">
+			  <IconButton color="primary" onClick={onClickAdbDisconnect}>
+                <WifiOffIcon />
+              </IconButton>
+			</Tooltip>
+
+            <Button
+              onClick={onClickApplyWifiADB}
+              variant="outlined"
+              disabled={
+                pairPort === "" ||
+                ipAddress === "" ||
+                pairingCode === "" ||
+                connectPort === ""
+              }
+			  sx={{width: TEXT_WIDTH_CONNECT}}
+            >
+              Connect
+            </Button>
+		  </Stack>
         </Stack>
       )
     }
