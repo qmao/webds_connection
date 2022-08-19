@@ -123,7 +123,7 @@ export default function WifiSettings() {
         body: JSON.stringify(dataToSend),
         method: "POST"
       });
-	  if (reply["status"] == true)
+	  if (reply["status"] === true)
         return Promise.resolve(JSON.stringify(reply));
       else
         return Promise.reject("connect failed.");
@@ -143,7 +143,6 @@ export default function WifiSettings() {
         body: JSON.stringify(dataToSend),
         method: "POST"
       });
-
       return Promise.resolve(JSON.stringify(reply));
 
     } catch (e) {
@@ -152,22 +151,25 @@ export default function WifiSettings() {
     }
   };
 
-  async function init() {
-    setWifiInitDone(false);
+  async function init(showProgress: boolean) {
+    if (showProgress)
+      setWifiInitDone(false);
 	setWifiCurrent("");
     await SendGetWifiList()
       .then((list) => {
         setWifiList(list);
-        setWifiInitDone(true);
+		if (showProgress)
+          setWifiInitDone(true);
       })
       .catch((e) => {
         setWifiList([]);
-        setWifiInitDone(true);
+		if (showProgress)
+          setWifiInitDone(true);
       });
   }
 
   useEffect(() => {
-    init();
+    init(true);
   }, []);
 
   function resetParams() {
@@ -184,12 +186,13 @@ export default function WifiSettings() {
     setWifiProgress(true);
     SendConnectToWifi()
       .then((ret) => {
-		resetParams();
-        init();
+        setSelect("");
+        resetParams();
+        init(false);
         setWifiProgress(false);
       })
       .catch((e) => {
-		init();
+		init(false);
         setWifiProgress(false);
         setWifiConnectError(true);
       });
@@ -217,7 +220,7 @@ export default function WifiSettings() {
 
     if (value === "wifi") {
       if (currentIndex === -1) {
-        init();
+        init(true);
       }
     }
   };
@@ -258,10 +261,10 @@ export default function WifiSettings() {
       resetParams();
       SendDisconnectToWifi()
         .then((ret) => {
-          init();
+          init(false);
         })
         .catch((e) => {
-          init();
+          init(false);
 		})
     }
     setShowConnectButton(false);
