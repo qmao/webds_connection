@@ -17,6 +17,9 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import WifiPasswordIcon from "@mui/icons-material/WifiPassword";
 import WifiIcon from "@mui/icons-material/Wifi";
 import CloseIcon from "@mui/icons-material/Close";
+
+import { requestAPI } from "./handler";
+
 import {
   FormControl,
   IconButton,
@@ -34,13 +37,6 @@ interface wifiElement {
   name: string;
   secure: boolean;
 }
-
-const defaultWifiList = [
-  { name: "Synaptics", secure: true },
-  { name: "Guest", secure: false },
-  { name: "My-11-22-BenQ", secure: true },
-  { name: "7788-ROOM-TEST", secure: false }
-];
 
 interface State {
   password: string;
@@ -87,8 +83,33 @@ export default function WifiSettings() {
   };
 
   const SendGetWifiList = async (): Promise<wifiElement[]> => {
-    await delay(1200);
-    return Promise.resolve(defaultWifiList);
+    try {
+      let url = "settings/wifi";
+
+      const reply = await requestAPI<any>(url, {
+        method: "GET"
+      });
+
+      let wifi_list = reply["list"].map((element) => {
+        let item: wifiElement = { name: "", secure: false };
+        console.log(element);
+        item.name = element[0];
+        item.secure = element[1] === "(secured)";
+        return item;
+      });
+
+      let connected = reply["connected"];
+      if (connected) {
+        setWifiCurrent(wifi_list[0]["name"]);
+      } else {
+        setWifiCurrent("");
+      }
+
+      return Promise.resolve(wifi_list);
+    } catch (e) {
+      console.error(`Error on GET.\n${e}`);
+      return Promise.reject((e as Error).message);
+    }
   };
 
   const SendConnectToWifi = async (): Promise<string> => {
@@ -103,6 +124,7 @@ export default function WifiSettings() {
 
   async function init() {
     setWifiInitDone(false);
+	setWifiCurrent("");
     await SendGetWifiList()
       .then((list) => {
         setWifiList(list);
