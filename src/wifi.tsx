@@ -43,7 +43,7 @@ interface State {
   showPassword: boolean;
 }
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+////const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function WifiSettings() {
   const [wifiInitDone, setWifiInitDone] = useState(false);
@@ -92,7 +92,6 @@ export default function WifiSettings() {
 
       let wifi_list = reply["list"].map((element) => {
         let item: wifiElement = { name: "", secure: false };
-        console.log(element);
         item.name = element[0];
         item.secure = element[1] === "(secured)";
         return item;
@@ -113,13 +112,44 @@ export default function WifiSettings() {
   };
 
   const SendConnectToWifi = async (): Promise<string> => {
-    await delay(200);
-    return Promise.resolve("done");
+	let dataToSend = {
+      "action": "connect",
+      "network": select,
+      "password": values.password
+	}
+
+    try {
+      const reply = await requestAPI<any>("settings/wifi", {
+        body: JSON.stringify(dataToSend),
+        method: "POST"
+      });
+	  if (reply["status"] == true)
+        return Promise.resolve(JSON.stringify(reply));
+      else
+        return Promise.reject("connect failed.");
+    } catch (e) {
+      console.error(`Error on POST ${dataToSend}.\n${e}`);
+      return Promise.reject((e as Error).message);
+    }
   };
 
   const SendDisconnectToWifi = async (): Promise<string> => {
-    await delay(200);
-    return Promise.resolve("done");
+	let dataToSend = {
+      "action": "disconnect",
+	}
+
+    try {
+      const reply = await requestAPI<any>("settings/wifi", {
+        body: JSON.stringify(dataToSend),
+        method: "POST"
+      });
+
+      return Promise.resolve(JSON.stringify(reply));
+
+    } catch (e) {
+      console.error(`Error on POST ${dataToSend}.\n${e}`);
+      return Promise.reject((e as Error).message);
+    }
   };
 
   async function init() {
@@ -154,11 +184,12 @@ export default function WifiSettings() {
     setWifiProgress(true);
     SendConnectToWifi()
       .then((ret) => {
-        setWifiCurrent(select);
-        resetParams();
+		resetParams();
+        init();
         setWifiProgress(false);
       })
       .catch((e) => {
+		init();
         setWifiProgress(false);
         setWifiConnectError(true);
       });
@@ -227,9 +258,11 @@ export default function WifiSettings() {
       resetParams();
       SendDisconnectToWifi()
         .then((ret) => {
-          setWifiCurrent("");
+          init();
         })
-        .catch((e) => {});
+        .catch((e) => {
+          init();
+		})
     }
     setShowConnectButton(false);
   }
