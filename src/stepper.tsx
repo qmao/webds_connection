@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 
-import { Button, Stack, Chip, TextField, Link, Typography, Paper, Box, IconButton, Tooltip } from "@mui/material";
+import { Button, Stack, Chip, TextField, Link, Typography, Paper, Box } from "@mui/material";
 import { requestAPI } from "./handler";
 
 import StarRateIcon from "@mui/icons-material/StarRate";
-import WifiOffIcon from '@mui/icons-material/WifiOff';
 import WifiSettings from "./wifi";
 
 const TEXT_WIDTH_IP = 350;
@@ -18,11 +17,18 @@ export default function SwipeableTextMobileStepper(props: any) {
   const [pairPort, setPairPort] = useState("");
   const [pairingCode, setPairingCode] = useState("");
   const [applyResult, setApplyResult] = useState("");
+  const [connected, setConnected] = useState(false);
 
   ///const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   
-  /*
-  const SendCheckStatus = async (): Promise<boolean> => {
+  useEffect(() => {
+    SendCheckConnection()
+    .then((ret) => {
+	  setConnected(ret);
+    })
+  }, []);
+
+  const SendCheckConnection= async (): Promise<boolean> => {
 
 	let url = "settings/adb";
 
@@ -30,10 +36,13 @@ export default function SwipeableTextMobileStepper(props: any) {
       method: "GET"
     });
     console.log(reply);
-
-    return Promise.resolve(reply["connected"]);
+    if (reply["connect"] === "Wi-Fi")
+    {
+      return Promise.resolve(true);
+    }
+    return Promise.resolve(false);
   };
-  */
+
 
   const SendDisconnect = async (): Promise<string> => {
     let dataToSend = {
@@ -66,6 +75,17 @@ export default function SwipeableTextMobileStepper(props: any) {
     return Promise.resolve(JSON.stringify(reply));
   };
 
+  const onClickEvent = (event: any) => {
+	if (connected)
+	{
+      onClickAdbDisconnect(event);
+	}
+	else
+	{
+      onClickApplyWifiADB(event);
+	}
+  }
+
   const onClickApplyWifiADB = (event: any) => {
     setApplyResult("");
     SendPairConnect()
@@ -76,20 +96,29 @@ export default function SwipeableTextMobileStepper(props: any) {
 			message = message + " Pair Pass. "
 		if (dict["connect"] === true)
 			message = message + " Connect Pass. "
+		else
+			message = "Connect failed."
         setApplyResult(message);
+		return SendCheckConnection();
       })
+	  .then((ret) => {
+		setConnected(ret);
+	  })
       .catch((e) => {
         setApplyResult(e);
         console.log(e);
       });
   };
-  
-    const onClickAdbDisconnect = (event: any) => {
+
+  const onClickAdbDisconnect = (event: any) => {
     setApplyResult("");
     SendDisconnect()
       .then((ret) => {
-		console.log(ret);
+		return SendCheckConnection();
       })
+	  .then((ret) => {
+		setConnected(ret);
+	  })
       .catch((e) => {
         setApplyResult(e);
         console.log(e);
@@ -129,6 +158,7 @@ export default function SwipeableTextMobileStepper(props: any) {
           onChange={handleTextChange}
           sx={{ width: TEXT_WIDTH_CONNECT }}
           error={value === ""}
+		  disabled={connected}
         />
       </Stack>
     );
@@ -370,27 +400,20 @@ export default function SwipeableTextMobileStepper(props: any) {
               {showConnectionSetting("Pair Port", "pairPort", pairPort)}
             </Stack>
           </Paper>
-		  <Stack direction="row" justifyContent="space-between" spacing={3}>
-		    <Tooltip title="ADB Disconnect">
-			  <IconButton color="primary" onClick={onClickAdbDisconnect}>
-                <WifiOffIcon />
-              </IconButton>
-			</Tooltip>
 
-            <Button
-              onClick={onClickApplyWifiADB}
-              variant="outlined"
-              disabled={
-                pairPort === "" ||
-                ipAddress === "" ||
-                pairingCode === "" ||
-                connectPort === ""
-              }
-			  sx={{width: TEXT_WIDTH_CONNECT}}
-            >
-              Connect
-            </Button>
-		  </Stack>
+          <Button
+            onClick={onClickEvent}
+            variant="outlined"
+            disabled={
+              (pairPort === "" ||
+              ipAddress === "" ||
+              pairingCode === "" ||
+              connectPort === "") && !connected
+            }
+          >
+			{connected? "Disconnect" : "Connect"}
+          </Button>
+
         </Stack>
       )
     }

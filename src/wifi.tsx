@@ -93,7 +93,7 @@ export default function WifiSettings() {
       let wifi_list = reply["list"].map((element) => {
         let item: wifiElement = { name: "", secure: false };
         item.name = element[0];
-        item.secure = element[1] === "(secured)";
+        item.secure = element[1] === "secured";
         return item;
       });
 
