@@ -309,6 +309,11 @@ export default function WifiSettings() {
           type={values.showPassword ? "text" : "password"}
           value={values.password}
           onChange={handleChange("password")}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              onWifiConnectNext(e);
+            }
+          }}
           endAdornment={
             <InputAdornment
               key={`page-input-adornment-${index}`}
