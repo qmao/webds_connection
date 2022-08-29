@@ -101,7 +101,7 @@ const Post = async (
       body: JSON.stringify(dataToSend),
       method: "POST"
     });
-    console.log(reply);
+    //console.log(reply);
     return Promise.resolve(JSON.stringify(reply));
   } catch (e) {
     console.error(`Error on POST ${dataToSend}.\n${e}`);
@@ -116,7 +116,7 @@ const Get = async (section: string): Promise<string | undefined> => {
     const reply = await requestAPI<any>(url, {
       method: "GET"
     });
-    console.log(reply);
+    //console.log(reply);
     return Promise.resolve(reply);
   } catch (e) {
     console.error(`Error on GET.\n${e}`);
@@ -518,7 +518,7 @@ export default function ConnectionWidget(props: any) {
       VOLTAGE_GROUP.map((v) => {
         newVoltageUser[v] = voltageSet[hardware]["DEFAULT"][v];
       });
-      console.log(hardware, voltageUser);
+      //console.log(hardware, voltageUser);
       setVoltageUser(newVoltageUser);
     }
   }, [hardware, voltageSet, voltageUser]);
@@ -554,7 +554,7 @@ export default function ConnectionWidget(props: any) {
   const getJson = async () => {
     const fetchData = async (section: string) => {
       const data = await Get(section);
-      console.log("data", data);
+      //console.log("data", data);
       return data;
     };
 
@@ -593,7 +593,7 @@ export default function ConnectionWidget(props: any) {
       //json object deep copy
       let jsonMerge = JSON.parse(JSON.stringify(jsonDefault));
       jsonMerge = Object.assign(jsonMerge, jsonCustom);
-      console.log(jsonMerge);
+      //console.log(jsonMerge);
       //jsonMergeRef.current = jsonMerge;
 
       let jprotocol = jsonMerge["interfaces"];
@@ -646,12 +646,10 @@ export default function ConnectionWidget(props: any) {
   };
 
   const handleChange = (event: SelectChangeEvent<typeof protocol>) => {
-    console.log(event.target.value);
     setProtocol(event.target.value);
   };
 
   const handlePowerSelectChange = (event: SelectChangeEvent<typeof power>) => {
-    console.log(event.target.value);
     setPower(event.target.value);
   };
 
@@ -731,7 +729,6 @@ export default function ConnectionWidget(props: any) {
     vsets.forEach((vset) => {
       voltageSet[vset] = {};
       VOLTAGE_GROUP.forEach((voltage) => {
-        console.log(voltage);
         var parr = powerJson.current[vset][voltage];
         var narr = [];
         parr.forEach((element, index) => {
@@ -756,16 +753,14 @@ export default function ConnectionWidget(props: any) {
     setLoad(true);
     setAlert(false);
     SetSpeed();
-    console.log(context);
+
     Post({ action: "update", value: context })
       .then((result) => {
-        console.log(result);
-
         let list: string[] = [];
         let jobj = JSON.parse(result!);
 
         Object.keys(jobj).forEach((key) => {
-          console.log(key, jobj[key]);
+          //console.log(key, jobj[key]);
           list.push(key + " " + jobj[key].toString());
         });
         setInfo(list);

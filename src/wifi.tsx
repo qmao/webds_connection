@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import Box from "@mui/material/Box";
 import SwipeableDrawer from "@mui/material/SwipeableDrawer";
@@ -43,7 +43,7 @@ interface State {
   showPassword: boolean;
 }
 
-////const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+//const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function WifiSettings() {
   const [wifiInitDone, setWifiInitDone] = useState(false);
@@ -66,6 +66,8 @@ export default function WifiSettings() {
     password: "",
     showPassword: false
   });
+  const wifiIntervalId = useRef(null);
+  const stopScanWifi = useRef(false);
 
   const toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent
@@ -78,9 +80,12 @@ export default function WifiSettings() {
     ) {
       return;
     }
-    1;
     setState({ ...state, [anchor]: open });
   };
+
+  useEffect(() => {
+    stopScanWifi.current = showConnectPage || showConnectButton;
+  }, [showConnectPage, showConnectButton]);
 
   const SendGetWifiList = async (): Promise<wifiElement[]> => {
     try {
@@ -151,17 +156,28 @@ export default function WifiSettings() {
     }
   };
 
+
+  function startWifiInterval() {
+    wifiIntervalId.current = setInterval(() => {
+      if (stopScanWifi.current) {
+      }
+      else {
+        init(false);
+      }
+    }, 2000);
+  };
+
   async function init(showProgress: boolean) {
     if (showProgress)
       setWifiInitDone(false);
-	setWifiCurrent("");
     await SendGetWifiList()
       .then((list) => {
         setWifiList(list);
 		if (showProgress)
-          setWifiInitDone(true);
+            setWifiInitDone(true);
       })
       .catch((e) => {
+        setWifiCurrent("");
         setWifiList([]);
 		if (showProgress)
           setWifiInitDone(true);
@@ -169,11 +185,16 @@ export default function WifiSettings() {
   }
 
   useEffect(() => {
-    init(true);
+    init(true).then(() => { startWifiInterval() });
+
+    return () => {
+        clearInterval(wifiIntervalId.current);
+    };
   }, []);
 
   function resetParams() {
-    setWifiConnectError(false);
+    setWifiConnectError(
+        false);
     setShowConnectPage(false);
     setValues({
       password: "",

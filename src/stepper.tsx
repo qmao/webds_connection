@@ -35,7 +35,7 @@ export default function SwipeableTextMobileStepper(props: any) {
     const reply = await requestAPI<any>(url, {
       method: "GET"
     });
-    console.log(reply);
+    //console.log(reply);
     if (reply["connect"] === "Wi-Fi")
     {
       return Promise.resolve(true);
@@ -53,7 +53,7 @@ export default function SwipeableTextMobileStepper(props: any) {
       body: JSON.stringify(dataToSend),
       method: "POST"
     });
-    console.log(reply);
+    //console.log(reply);
     return Promise.resolve(JSON.stringify(reply));
   };
   
@@ -71,7 +71,7 @@ export default function SwipeableTextMobileStepper(props: any) {
       body: JSON.stringify(dataToSend),
       method: "POST"
     });
-    console.log(reply);
+    //console.log(reply);
     return Promise.resolve(JSON.stringify(reply));
   };
 
