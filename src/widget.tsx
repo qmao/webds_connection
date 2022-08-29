@@ -1234,7 +1234,6 @@ export class ShellWidget extends ReactWidget {
     constructor(id: string, service: WebDSService) {
         super();
         this.id = id;
-        this.addClass('jp-webds-widget');
         this.service = service
     }
 
