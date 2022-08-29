@@ -80,6 +80,7 @@ export default function WifiSettings() {
     ) {
       return;
     }
+    resetParams();
     setState({ ...state, [anchor]: open });
   };
 
@@ -196,6 +197,7 @@ export default function WifiSettings() {
     setWifiConnectError(
         false);
     setShowConnectPage(false);
+    setShowConnectButton(false);
     setValues({
       password: "",
       showPassword: false
@@ -234,7 +236,6 @@ export default function WifiSettings() {
       newChecked.splice(currentIndex, 1);
     }
 
-    //setChecked(newChecked);
     resetParams();
 
     setRootState(newChecked);
@@ -502,7 +503,7 @@ export default function WifiSettings() {
         <SwipeableDrawer
           anchor={"right"}
           open={state["right"]}
-          onClose={toggleDrawer("right", true)}
+          onClose={toggleDrawer("right", false)}
           onOpen={toggleDrawer("right", true)}
         >
           {list("right")}
