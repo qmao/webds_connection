@@ -1226,22 +1226,25 @@ export default function ConnectionWidget(props: any) {
 * A Counter Lumino Widget that wraps a CounterComponent.
 */
 export class ShellWidget extends ReactWidget {
+    id: string;
     service: WebDSService;
     /**
     * Constructs a new CounterWidget.
     */
-    constructor(service: WebDSService) {
+    constructor(id: string, service: WebDSService) {
         super();
+        this.id = id;
         this.addClass('jp-webds-widget');
         this.service = service
-        console.log("TabPanelUiWidget is created!!!");
-    }
-
-    handleChangeFile(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log(e.currentTarget.files);
     }
 
     render(): JSX.Element {
-        return <ConnectionWidget service={this.service}/>;
+        return (
+          <div id={this.id + "_container"} className="jp-webds-widget-container">
+            <div id={this.id + "_content"} className="jp-webds-widget">
+              <ConnectionWidget service={this.service}/>;
+            </div>
+          </div>
+        );
     }
 }

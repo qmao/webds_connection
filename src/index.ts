@@ -14,19 +14,21 @@ import { extensionConnectionIcon } from './icons';
 
 import { WebDSService, WebDSWidget } from '@webds/service';
 
-
-/**
- * The command IDs used by the server extension plugin.
- */
-namespace CommandIDs {
-  export const connection = 'webds:connection';
+namespace Attributes {
+  export const command = "webds_connection:open";
+  export const id = "webds_connection_widget";
+  export const label = "Connection";
+  export const caption = "Connection";
+  export const category = "DSDK - Applications";
+  export const rank = 30;
+  export const icon = extensionConnectionIcon;
 }
 
 /**
  * Initialization data for the reprogram extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'connection:plugin',
+  id: "@webds/connection:plugin",
   autoStart: true,
   requires: [ILauncher, ILayoutRestorer, WebDSService],
   activate: (
@@ -34,28 +36,25 @@ const plugin: JupyterFrontEndPlugin<void> = {
     launcher: ILauncher,
     restorer: ILayoutRestorer,
     service: WebDSService ) => {
-    console.log('JupyterLab extension connection is activated!');
+    console.log('JupyterLab extension ${Attributes.label} is activated!');
 
     let widget: WebDSWidget;
     const { commands, shell } = app;
-    const command = CommandIDs.connection;
-    const category = 'DSDK - Applications';
-    const extension_string = 'Connection';
-
+    const command = Attributes.command;
 
     commands.addCommand(command, {
-      label: extension_string,
-      caption: extension_string,
-	  icon: extensionConnectionIcon,
+      label: Attributes.label,
+      caption: Attributes.caption,
+	  icon: Attributes.icon,
       execute: () => {
         if (!widget || widget.isDisposed) {
-          let content = new ShellWidget(service);
+          let content = new ShellWidget(Attributes.id, service);
 
           widget = new WebDSWidget<ShellWidget>({ content });
-          widget.id = 'connection';
-          widget.title.label = extension_string;
+          widget.id = Attributes.id;
+          widget.title.label = Attributes.label;
           widget.title.closable = true;
-          widget.title.icon = extensionConnectionIcon;
+          widget.title.icon = Attributes.icon;
         }
 
         if (!tracker.has(widget))
@@ -65,18 +64,20 @@ const plugin: JupyterFrontEndPlugin<void> = {
           shell.add(widget, 'main');
 
         shell.activateById(widget.id);
+
+        widget.setShadows();
       }
     });
 
     // Add launcher
     launcher.add({
       command: command,
-      category: category,
-      rank: 30
+      category: Attributes.category,
+      rank: Attributes.rank
     });
 
-    let tracker = new WidgetTracker<WebDSWidget>({ namespace: 'webds_connection' });
-    restorer.restore(tracker, { command, name: () => 'webds_connection' });
+    let tracker = new WidgetTracker<WebDSWidget>({ namespace: Attributes.id });
+    restorer.restore(tracker, { command, name: () => Attributes.id });
   }
 };
 
