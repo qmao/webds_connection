@@ -392,22 +392,15 @@ export default function ConnectionWidget(props: any) {
   }, [protocol]);
 
   useEffect(() => {
-    //console.log("[mode]");
     context.spiMode = Number(mode);
-    //console.log(context.spiMode);
-  }, [mode, context]);
+  }, [mode]);
 
   useEffect(() => {
-    //console.log("[attn]");
     if (attn === 0) context.useAttn = false;
     else if (attn === 1) context.useAttn = true;
-    //console.log(context.useAttn);
-  }, [attn, context]);
+  }, [attn]);
 
   useEffect(() => {
-    console.log("[addr]");
-    console.log(addr);
-
     let num = parseInt(addr);
 
     if (isNaN(num) || isNaN(Number(addr))) {
@@ -416,34 +409,28 @@ export default function ConnectionWidget(props: any) {
       if (num > 128) setAddr("128");
       else if (num < 0) setAddr("0");
       context.i2cAddr = num;
-      //console.log(context.i2cAddr);
+
       setAddrError(false);
     }
-  }, [addr, context]);
+  }, [addr]);
 
   useEffect(() => {
-    //console.log("[speed i2c]");
-
     let num = parseInt(speedI2c);
 
     if (isNaN(num) || isNaN(Number(speedI2c))) {
       setSpeedI2cError(true);
     } else {
       setSpeedI2cError(false);
-      //console.log(context.speed);
     }
   }, [speedI2c]);
 
   useEffect(() => {
-    //console.log("[speed spi]");
-
     let num = parseInt(speedSpi);
 
     if (isNaN(num) || isNaN(Number(speedSpi))) {
       setSpeedSpiError(true);
     } else {
       setSpeedSpiError(false);
-      //console.log(context.speed);
     }
   }, [speedSpi]);
 
@@ -456,10 +443,9 @@ export default function ConnectionWidget(props: any) {
       if (num > 4000) setVdd("4000");
       else if (num < 0) setVdd("0");
       context.vdd = num;
-      //console.log(context.vdd);
       setVddError(false);
     }
-  }, [vdd, context]);
+  }, [vdd]);
 
   useEffect(() => {
     let num = parseInt(vddtx);
@@ -470,10 +456,9 @@ export default function ConnectionWidget(props: any) {
       if (num > 4000) setVddtx("4000");
       else if (num < 0) setVddtx("0");
       context.vddtx = num;
-      //console.log(context.vddtx);
       setVddtxError(false);
     }
-  }, [vddtx, context]);
+  }, [vddtx]);
 
   useEffect(() => {
     let num = parseInt(vled);
@@ -484,10 +469,9 @@ export default function ConnectionWidget(props: any) {
       if (num > 4000) setVled("4000");
       else if (num < 0) setVled("0");
       context.vled = num;
-      //console.log(context.vled);
       setVledError(false);
     }
-  }, [vled, context]);
+  }, [vled]);
 
   useEffect(() => {
     let num = parseInt(vpu);
@@ -498,10 +482,9 @@ export default function ConnectionWidget(props: any) {
       if (num > 4000) setVpu("4000");
       else if (num < 0) setVpu("0");
       context.vpu = num;
-      //console.log(context.vpu);
       setVpuError(false);
     }
-  }, [vpu, context]);
+  }, [vpu]);
 
   const updateVoltages = (voltage: string, value: string) => {
     switch (voltage) {
@@ -521,7 +504,6 @@ export default function ConnectionWidget(props: any) {
   };
 
   useEffect(() => {
-    //console.log("set voltageUser:", voltageUser);
     if (Object.keys(voltageSet).length) {
       VOLTAGE_GROUP.map((v) => {
         updateVoltages(v, voltageUser[v]);
@@ -531,7 +513,6 @@ export default function ConnectionWidget(props: any) {
 
   useEffect(() => {
     if (hardware == null) return;
-    //console.log("set hardware:", hardware, voltageSet);
     if (Object.keys(voltageSet).length) {
       var newVoltageUser = Object.assign({}, voltageUser);
       VOLTAGE_GROUP.map((v) => {
