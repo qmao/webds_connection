@@ -1219,6 +1219,8 @@ export class ShellWidget extends ReactWidget {
             <div id={this.id + "_content"} className="jp-webds-widget">
               <ConnectionWidget service={this.service}/>;
             </div>
+            <div className="jp-webds-widget-shadow jp-webds-widget-shadow-top"></div>
+            <div className="jp-webds-widget-shadow jp-webds-widget-shadow-bottom"></div>
           </div>
         );
     }
