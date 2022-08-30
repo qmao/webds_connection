@@ -68,6 +68,7 @@ export default function WifiSettings() {
   });
   const wifiIntervalId = useRef(null);
   const stopScanWifi = useRef(false);
+  const wifiProcessing = useRef(false);
 
   const toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent
@@ -159,37 +160,40 @@ export default function WifiSettings() {
 
 
   function startWifiInterval() {
-    wifiIntervalId.current = setInterval(() => {
-      if (stopScanWifi.current) {
+      wifiIntervalId.current = setInterval(async () => {
+        console.log(wifiProcessing.current);
+        if (stopScanWifi.current || wifiProcessing.current) {
+        }
+        else {
+          wifiProcessing.current = true;
+          await init(false);
+          wifiProcessing.current = false;
       }
-      else {
-        init(false);
-      }
-    }, 2000);
+    }, 3000);
   };
 
   async function init(showProgress: boolean) {
     if (showProgress)
       setWifiInitDone(false);
-    await SendGetWifiList()
-      .then((list) => {
-        setWifiList(list);
-		if (showProgress)
-            setWifiInitDone(true);
-      })
-      .catch((e) => {
-        setWifiCurrent("");
-        setWifiList([]);
-		if (showProgress)
-          setWifiInitDone(true);
-      });
+    try {
+      let list = await SendGetWifiList();
+      setWifiList(list);
+      if (showProgress)
+        setWifiInitDone(true);
+    } catch (e) {
+      setWifiCurrent("");
+      setWifiList([]);
+      if (showProgress)
+        setWifiInitDone(true);
+    }
   }
 
   useEffect(() => {
-    init(true).then(() => { startWifiInterval() });
+    init(true)
+    startWifiInterval();
 
     return () => {
-        clearInterval(wifiIntervalId.current);
+      clearInterval(wifiIntervalId.current);
     };
   }, []);
 
