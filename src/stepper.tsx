@@ -260,7 +260,8 @@ export default function SwipeableTextMobileStepper(props: any) {
                                 steps
               </Typography>
                         </div>
-                        <Paper
+                        <div/>
+                        <Paper variant="outlined" square
                             sx={{
                                 width: 230,
                                 height: 60,
@@ -335,7 +336,7 @@ export default function SwipeableTextMobileStepper(props: any) {
                             The pairing code, IP address, and port number are required for use
                             in the next steps
             </Typography>
-                        <Paper
+                        <Paper variant="outlined" square
                             sx={{
                                 width: 230,
                                 height: 200,
@@ -415,7 +416,7 @@ export default function SwipeableTextMobileStepper(props: any) {
                         </Typography>
                     </div>
 
-                    <Paper elevation={0} square sx={{ bdcolor: "transparent" }}>
+                    <Paper elevation={0} sx={{ bdcolor: "transparent" }}>
                         <Stack spacing={1}>
                             {showConnectionSetting(
                                 "Pairing Code",
