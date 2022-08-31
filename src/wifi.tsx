@@ -43,6 +43,7 @@ interface State {
   showPassword: boolean;
 }
 
+const WIFI_SCAN_INTERVAL = 4000;
 //const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function WifiSettings() {
@@ -70,6 +71,7 @@ export default function WifiSettings() {
   const stopScanWifi = useRef(false);
   const wifiProcessing = useRef(false);
 
+
   const toggleDrawer = (anchor: Anchor, open: boolean) => (
     event: React.KeyboardEvent | React.MouseEvent
   ) => {
@@ -81,7 +83,13 @@ export default function WifiSettings() {
     ) {
       return;
     }
-    resetParams();
+    if (open) {
+      init(true)
+      startWifiInterval();
+    }
+    else {
+      destroy();
+    };
     setState({ ...state, [anchor]: open });
   };
 
@@ -169,7 +177,7 @@ export default function WifiSettings() {
           await init(false);
           wifiProcessing.current = false;
       }
-    }, 3000);
+    }, WIFI_SCAN_INTERVAL);
   };
 
   async function init(showProgress: boolean) {
@@ -195,12 +203,7 @@ export default function WifiSettings() {
   }
 
   useEffect(() => {
-    init(true)
-    startWifiInterval();
 
-    return () => {
-      destroy();
-    };
   }, []);
 
   function resetParams() {
