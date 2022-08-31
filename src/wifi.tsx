@@ -188,12 +188,18 @@ export default function WifiSettings() {
     }
   }
 
+  function destroy() {
+    resetParams();
+    setWifiProgress(false);
+    clearInterval(wifiIntervalId.current);
+  }
+
   useEffect(() => {
     init(true)
     startWifiInterval();
 
     return () => {
-      clearInterval(wifiIntervalId.current);
+      destroy();
     };
   }, []);
 
@@ -247,6 +253,10 @@ export default function WifiSettings() {
     if (value === "wifi") {
       if (currentIndex === -1) {
         init(true);
+        startWifiInterval();
+      }
+      else {
+        destroy();
       }
     }
   };
