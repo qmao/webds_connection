@@ -33,13 +33,8 @@ export default function SwipeableTextMobileStepper(props: any) {
     ///const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     const ImageArea = (props) => (
-        <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            spacing={2}
-        >
-            {props.children}
+        <Stack direction="row" justifyContent="flex-start" alignItems="center">
+            <div style={{ border: "1px solid" }}>{props.children}</div>
         </Stack>
     );
 
@@ -222,7 +217,9 @@ export default function SwipeableTextMobileStepper(props: any) {
                             Tap the "Wireless debugging" option
             </Typography>
                     </div>
-                    <div className="jp-enableWifiDebugImage"></div>
+                    <ImageArea>
+                        <div className="jp-enableWifiDebugImage"></div>
+                    </ImageArea>
                 </Stack>
             )
         },
@@ -234,9 +231,11 @@ export default function SwipeableTextMobileStepper(props: any) {
                         <Typography sx={{ fontSize: 12 }}>
                             Check "Always allow on this network"
             </Typography>
-                        <Typography sx={{ fontSize: 12 }}>Then press "Allow."</Typography>
+                        <Typography sx={{ fontSize: 12 }}>Then press "Allow"</Typography>
                     </div>
-                    <div className="jp-allowWirelessDebugImage"></div>
+                    <ImageArea>
+                        <div className="jp-allowWirelessDebugImage"></div>
+                    </ImageArea>
                 </Stack>
             )
         },
@@ -244,26 +243,28 @@ export default function SwipeableTextMobileStepper(props: any) {
             label: "Get Wi-Fi Device IP address and port",
             content: (
                 <Stack spacing={2} direction="row">
-                    <Stack spacing={2} direction="column" sx={{
-                        width: 400,
-                        pr: 2
-                    }}>
+                    <Stack
+                        spacing={2}
+                        direction="column"
+                        sx={{
+                            width: 400,
+                            pr: 2
+                        }}
+                    >
                         <div>
-                        <Typography sx={{ fontSize: 12 }}>
-                            On your device, tap on "Wireless debugging"
+                            <Typography sx={{ fontSize: 12 }}>
+                                On your device, tap on "Wireless debugging"
               </Typography>
-                        <Typography sx={{ fontSize: 12 }}>
+                            <Typography sx={{ fontSize: 12 }}>
                                 The IP address and port number are required for use in the next
                                 steps
               </Typography>
-                            </div>
+                        </div>
                         <Paper
                             sx={{
                                 width: 230,
                                 height: 60,
-                                p: 2,
-                                bgcolor: "section.main",
-                                border: 2
+                                p: 2
                             }}
                         >
                             <Typography sx={{ fontSize: 12 }}>IP address & Port</Typography>
@@ -309,7 +310,9 @@ export default function SwipeableTextMobileStepper(props: any) {
                             pairing code"
             </Typography>
                     </div>
-                    <div className="jp-pairDeviceImage"></div>
+                    <ImageArea>
+                        <div className="jp-pairDeviceImage"></div>
+                    </ImageArea>
                 </Stack>
             )
         },
@@ -317,26 +320,31 @@ export default function SwipeableTextMobileStepper(props: any) {
             label: "Get Wi-Fi Device Pairing Code",
             content: (
                 <Stack spacing={2} direction="row">
-                    <Stack spacing={2} direction="column" sx={{
-                        width: 400,
-                        pr: 2
-                    }}>
-                        <Typography sx={{ fontSize: 12 }} style={{ display: "inline-block", whiteSpace: "pre-line" }}>
-                            The pairing code, IP address, and port number are required for
-                            use in the next steps
-                            </Typography>
+                    <Stack
+                        spacing={2}
+                        direction="column"
+                        sx={{
+                            width: 400,
+                            pr: 2
+                        }}
+                    >
+                        <Typography
+                            sx={{ fontSize: 12 }}
+                            style={{ display: "inline-block", whiteSpace: "pre-line" }}
+                        >
+                            The pairing code, IP address, and port number are required for use
+                            in the next steps
+            </Typography>
                         <Paper
                             sx={{
                                 width: 230,
                                 height: 200,
-                                p: 2,
-                                bgcolor: "section.main",
-                                border: 2
+                                p: 2
                             }}
                         >
                             <Typography display="block" gutterBottom sx={{ mb: 2 }}>
                                 Pair with device
-                </Typography>
+              </Typography>
                             <Typography sx={{ fontSize: 12 }}>Wi-Fi paring code</Typography>
                             <TextField
                                 size="small"
