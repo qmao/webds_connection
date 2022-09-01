@@ -2,6 +2,7 @@ import { ReactWidget } from "@jupyterlab/apputils";
 import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { requestAPI } from "./handler";
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
 import {
   MenuItem,
@@ -291,7 +292,12 @@ function SelectPower(props: {
 
 type SeverityType = "error" | "info" | "success" | "warning";
 
-export default function ConnectionWidget(props: any) {
+interface ConnectionProps {
+    service: WebDSService;
+    settingRegistry: ISettingRegistry;
+}
+
+export default function ConnectionWidget(props: ConnectionProps) {
   const [activeStep, setActiveStep] = useState(0);
 
   const [interfaces, setInterfaces] = React.useState([]);
@@ -831,7 +837,7 @@ export default function ConnectionWidget(props: any) {
   function displayAdbOverWifi() {
     return (
       <Stack justifyContent="center" alignItems="center" sx={{ m: 2 }}>
-        <SwipeableTextMobileStepper activeStep={activeStep} />
+        <SwipeableTextMobileStepper activeStep={activeStep} settingRegistry={props.settingRegistry}/>
       </Stack>
     );
   }
@@ -1204,20 +1210,22 @@ export default function ConnectionWidget(props: any) {
 export class ShellWidget extends ReactWidget {
     id: string;
     service: WebDSService;
+    settingRegistry: ISettingRegistry | null = null;
     /**
     * Constructs a new CounterWidget.
     */
-    constructor(id: string, service: WebDSService) {
+    constructor(id: string, service: WebDSService, settingRegistry: ISettingRegistry) {
         super();
         this.id = id;
-        this.service = service
+        this.service = service;
+        this.settingRegistry = settingRegistry || null;
     }
 
     render(): JSX.Element {
         return (
           <div id={this.id + "_container"} className="jp-webds-widget-container">
             <div id={this.id + "_content"} className="jp-webds-widget">
-              <ConnectionWidget service={this.service}/>;
+              <ConnectionWidget service={this.service} settingRegistry={this.settingRegistry}/>;
             </div>
             <div className="jp-webds-widget-shadow jp-webds-widget-shadow-top"></div>
             <div className="jp-webds-widget-shadow jp-webds-widget-shadow-bottom"></div>

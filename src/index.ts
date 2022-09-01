@@ -10,19 +10,11 @@ import { ILauncher } from '@jupyterlab/launcher';
 
 import { ShellWidget } from './widget'
 
-import { extensionConnectionIcon } from './icons';
-
 import { WebDSService, WebDSWidget } from '@webds/service';
 
-namespace Attributes {
-  export const command = "webds_connection:open";
-  export const id = "webds_connection_widget";
-  export const label = "Connection";
-  export const caption = "Connection";
-  export const category = "DSDK - Applications";
-  export const rank = 30;
-  export const icon = extensionConnectionIcon;
-}
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
+
+import { Attributes } from "./constant";
 
 /**
  * Initialization data for the reprogram extension.
@@ -30,11 +22,12 @@ namespace Attributes {
 const plugin: JupyterFrontEndPlugin<void> = {
   id: "@webds/connection:plugin",
   autoStart: true,
-  requires: [ILauncher, ILayoutRestorer, WebDSService],
+  requires: [ILauncher, ILayoutRestorer, ISettingRegistry, WebDSService],
   activate: (
     app: JupyterFrontEnd,
     launcher: ILauncher,
     restorer: ILayoutRestorer,
+    settingRegistry: ISettingRegistry | null,
     service: WebDSService ) => {
     console.log('JupyterLab extension ${Attributes.label} is activated!');
 
@@ -48,7 +41,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 	  icon: Attributes.icon,
       execute: () => {
         if (!widget || widget.isDisposed) {
-          let content = new ShellWidget(Attributes.id, service);
+          let content = new ShellWidget(Attributes.id, service, settingRegistry);
 
           widget = new WebDSWidget<ShellWidget>({ content });
           widget.id = Attributes.id;
