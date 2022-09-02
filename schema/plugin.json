@@ -3,6 +3,27 @@
   "title": "webds_connection",
   "description": "webds_connection settings.",
   "type": "object",
-  "properties": {},
+  "properties": {
+	"paringCode": {
+      "title": "paring Code",
+      "default": "",
+      "type": "string"
+    },
+    "ipAddress": {
+      "title": "IP Address",
+      "default": "",
+      "type": "string"
+    },
+    "connectPort": {
+      "title": "Connect Port",
+      "default": "",
+      "type": "string"
+    },
+    "pairPort": {
+      "title": "Pair Port",
+      "default": "",
+      "type": "string"
+    }
+  },
   "additionalProperties": false
 }
