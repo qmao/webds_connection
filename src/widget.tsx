@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "@mui/material/styles";
 import { requestAPI } from "./handler";
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { Attributes } from "./constant";
 
 import {
   MenuItem,
@@ -347,7 +348,11 @@ export default function ConnectionWidget(props: ConnectionProps) {
     VBUS: 0
   });
   const [tabValue, setTabValue] = React.useState(0);
-
+  interface ISettingElement {
+    name: string;
+    value: any;
+  }
+  const settings = React.useRef<ISettingElement[]>([]);
   const powerJson = useRef({});
 
   const context = {
@@ -360,6 +365,43 @@ export default function ConnectionWidget(props: ConnectionProps) {
     vddtx: 1200,
     vled: 3300,
     vpu: 1800
+  };
+
+    const loadExtensionSettings = () => {
+        const settingList = ["pairingCode", "ipAddress", "connectPort", "pairPort"];
+
+        async function load() {
+            var settingRegistry: ISettingRegistry = props.settingRegistry;
+            if (settingRegistry) {
+                try {
+                    var s = await settingRegistry.load(Attributes.plugin);
+                    if (s != null) {
+                        settingList.forEach(async function (item) {
+                            var value = s.composite[item];
+                            settings.current.push({ "name": item, "value": value });
+                        })
+                    }
+
+                } catch (reason) {
+                    console.log(`Failed to set settings for ${Attributes.plugin}\n${reason}`);
+                }
+            }
+        };
+        load();
+        console.log(settings.current);
+  };
+
+  const setExtensionSettings = (elements: ISettingElement[]) => {
+    var settingRegistry: ISettingRegistry = props.settingRegistry;
+    if (settingRegistry) {
+        try {
+            elements.forEach(async function (item) {
+                await settingRegistry.set(Attributes.plugin, item.name, item.value);
+            });
+        } catch (reason) {
+            console.log(`Failed to set settings for ${Attributes.plugin}\n${reason}`);
+        }
+    }
   };
 
   useEffect(() => {
@@ -752,7 +794,8 @@ export default function ConnectionWidget(props: ConnectionProps) {
 
   useEffect(() => {
     getJson();
-    LoadVoltageSets();
+      LoadVoltageSets();
+      loadExtensionSettings();
   }, []);
 
   function UpdateSettings() {
@@ -837,7 +880,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
   function displayAdbOverWifi() {
     return (
       <Stack justifyContent="center" alignItems="center" sx={{ m: 2 }}>
-        <SwipeableTextMobileStepper activeStep={activeStep} settingRegistry={props.settingRegistry}/>
+        <SwipeableTextMobileStepper activeStep={activeStep} defaultSettings={settings.current} updateSettings={setExtensionSettings}/>
       </Stack>
     );
   }

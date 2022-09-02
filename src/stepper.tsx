@@ -42,6 +42,25 @@ export default function SwipeableTextMobileStepper(props: any) {
         SendCheckConnection().then((ret) => {
             setConnected(ret);
         });
+
+        [...props.defaultSettings].forEach(element => {
+            switch (element.name) {
+                case "ipAddress":
+                    setIpAddress(element.value);
+                    break;
+                case "connectPort":
+                    setConnectPort(element.value);
+                    break;
+                case "pairPort":
+                    setPairPort(element.value);
+                    break;
+                case "pairingCode":
+                    setPairingCode(element.value);
+                    break;
+                default:
+                    break;
+            }
+        })
     }, []);
 
     const SendCheckConnection = async (): Promise<boolean> => {
@@ -148,6 +167,7 @@ export default function SwipeableTextMobileStepper(props: any) {
             default:
                 break;
         }
+        props.updateSettings([{ name: event.target.id, value: event.target.value}]);
     };
 
     function showConnectionSetting(title: string, id: string, value: string) {

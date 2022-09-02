@@ -20,7 +20,7 @@ import { Attributes } from "./constant";
  * Initialization data for the reprogram extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: "@webds/connection:plugin",
+  id: Attributes.plugin,
   autoStart: true,
   requires: [ILauncher, ILayoutRestorer, ISettingRegistry, WebDSService],
   activate: (
