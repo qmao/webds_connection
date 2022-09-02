@@ -795,7 +795,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
   useEffect(() => {
     getJson();
       LoadVoltageSets();
-      loadExtensionSettings();
   }, []);
 
   function UpdateSettings() {
@@ -878,6 +877,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
   };
 
   function displayAdbOverWifi() {
+    loadExtensionSettings();
     return (
       <Stack justifyContent="center" alignItems="center" sx={{ m: 2 }}>
         <SwipeableTextMobileStepper activeStep={activeStep} defaultSettings={settings.current} updateSettings={setExtensionSettings}/>
