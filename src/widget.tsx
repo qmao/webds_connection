@@ -368,7 +368,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
   };
 
     const loadExtensionSettings = () => {
-        const settingList = ["pairingCode", "ipAddress", "connectPort", "pairPort"];
+        const settingList = ["ipAddress", "connectPort"];
 
         async function load() {
             var settingRegistry: ISettingRegistry = props.settingRegistry;
