@@ -118,8 +118,8 @@ export default function StepperModeSelect(props: any) {
               value={mode}
               onChange={handleChange}
             >
-              <FormControlLabel value="AP" control={<Radio />} label="AP" />
-              <FormControlLabel value="STA" control={<Radio />} label="STA" />
+              <FormControlLabel value="AP" control={<Radio />} label="Access Point (AP)" />
+              <FormControlLabel value="STA" control={<Radio />} label="Wireless Client/Station (STA)" />
             </RadioGroup>
           </FormControl>
         </Stack>
@@ -133,8 +133,10 @@ export default function StepperModeSelect(props: any) {
       content: (
         <Stack spacing={2}>
           <Typography sx={{ fontSize: 12 }}>
-            To connect to wireless network, use your Android device and go to
-            Settings -{`>`} Wireless & networks -{`>`} Wi-Fi settings
+            use your Android device and go to Settings -{`>`} Wireless & networks -{`>`} Wi-Fi settings
+          </Typography>
+          <Typography sx={{ fontSize: 12 }}>
+            Connect to wireless network network syna-pi
           </Typography>
           {showNoteMessage(
             " In AP mode, the connected Android device will always be assigned an IP address of 192.168.7.2"
