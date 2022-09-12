@@ -206,8 +206,10 @@ export default function WifiSettings() {
     clearInterval(wifiIntervalId.current);
   }
 
-  useEffect(() => {
-
+   useEffect(() => {
+       ////SendWifiPost({ "action": "turnOn" }).then((ret) => {
+       ////SendConnectToWifi();
+       ////})
   }, []);
 
   function resetParams() {

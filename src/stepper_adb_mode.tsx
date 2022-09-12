@@ -10,9 +10,11 @@ import {
   FormLabel,
   RadioGroup,
   FormControlLabel,
-  Radio
+  Radio,
+  LinearProgress
 } from "@mui/material";
-//import { requestAPI } from "./handler";
+
+import { requestAPI } from "./handler";
 
 import WifiSettings from "./wifi";
 import StarRateIcon from "@mui/icons-material/StarRate";
@@ -27,6 +29,7 @@ const ImageArea = (props) => (
 );
 
 export default function StepperModeSelect(props: any) {
+    const [modeAP, setModeAP] = useState(false);
     const [mode, setMode] = useState("AP");
     const [staDefaultAddress, setStaDefaultAddress] = useState("");
   const [steps, setSteps] = useState([
@@ -39,6 +42,20 @@ export default function StepperModeSelect(props: any) {
           content: <></>
       },
   ]);
+
+    const SendWifiPost = async (dataToSend: any): Promise<string> => {
+        try {
+            const reply = await requestAPI<any>("settings/wifi", {
+                body: JSON.stringify(dataToSend),
+                method: "POST"
+            });
+            return Promise.resolve(JSON.stringify(reply));
+
+        } catch (e) {
+            console.error(`Error on POST ${dataToSend}.\n${e}`);
+            return Promise.reject((e as Error).message);
+        }
+    };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setMode((event.target as HTMLInputElement).value);
@@ -121,7 +138,7 @@ export default function StepperModeSelect(props: any) {
           </Typography>
           {showNoteMessage(
             " In AP mode, the connected Android device will always be assigned an IP address of 192.168.7.2"
-          )}
+              )}
           <ImageArea>
             <div className="jp-enableWifiDebugImage"></div>
           </ImageArea>
@@ -170,6 +187,21 @@ export default function StepperModeSelect(props: any) {
           }
     }, [props.defaultSettings]);
 
+    useEffect(() => {
+        if (mode === "AP" && props.activeStep === 1) {
+            setModeAP(true);
+            SendWifiPost({ "action": "setAP" }).then((ret) => {
+                if (ret.includes("Error")) {
+                    alert(ret);
+                }
+                setModeAP(false);
+            }).catch((e) => {
+                alert(e);
+                setModeAP(false);
+            })
+        }
+    }, [props.activeStep]);
+
   useEffect(() => {
     if (mode === "AP") {
       setSteps(stepsAP);
@@ -203,6 +235,12 @@ export default function StepperModeSelect(props: any) {
             <Chip variant="outlined" label={`Step 1-${props.activeStep + 1}`} />
             <Typography>{steps[props.activeStep].label}</Typography>
           </Stack>
+          {
+            modeAP === true &&
+            <Box sx={{ width: '100%' }}>
+                <LinearProgress />
+            </Box>
+          }
           <Stack sx={{ pl: 10 }}>{steps[props.activeStep].content}</Stack>
         </Stack>
       </Paper>
