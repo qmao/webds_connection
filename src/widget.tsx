@@ -29,6 +29,7 @@ import {
 
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import SwipeableTextMobileStepper from "./stepper";
+import StepperModeSelect from "./stepper_adb_mode";
 
 import { ThemeProvider } from "@mui/material/styles";
 
@@ -347,12 +348,14 @@ export default function ConnectionWidget(props: ConnectionProps) {
     VDD12: 0,
     VBUS: 0
   });
+  const [adbPage, setAdbPage] = useState(0);
   const [tabValue, setTabValue] = React.useState(0);
   interface ISettingElement {
     name: string;
     value: any;
   }
-  const settings = React.useRef<ISettingElement[]>([]);
+
+  const [settings, setSettings] = React.useState<ISettingElement[]>([]);
   const powerJson = useRef({});
 
   const context = {
@@ -368,9 +371,10 @@ export default function ConnectionWidget(props: ConnectionProps) {
   };
 
     const loadExtensionSettings = () => {
-        const settingList = ["ipAddress", "connectPort"];
+        const settingList = ["ipAddress", "connectPort", "mode"];
 
         async function load() {
+            let temp_settings = [];
             var settingRegistry: ISettingRegistry = props.settingRegistry;
             if (settingRegistry) {
                 try {
@@ -378,17 +382,20 @@ export default function ConnectionWidget(props: ConnectionProps) {
                     if (s != null) {
                         settingList.forEach(async function (item) {
                             var value = s.composite[item];
-                            settings.current.push({ "name": item, "value": value });
+                            temp_settings.push({ "name": item, "value": value });
                         })
                     }
 
                 } catch (reason) {
                     console.log(`Failed to set settings for ${Attributes.plugin}\n${reason}`);
                 }
+                if (JSON.stringify(temp_settings) !== JSON.stringify(settings)) {
+                    setSettings(temp_settings);
+                }
+                console.log(temp_settings);
             }
         };
         load();
-        console.log(settings.current);
   };
 
   const setExtensionSettings = (elements: ISettingElement[]) => {
@@ -876,12 +883,29 @@ export default function ConnectionWidget(props: ConnectionProps) {
     );
   };
 
+  function displayAdbModeSelect() {
+    return (
+        <Stack justifyContent="center" alignItems="center" sx={{ m: 2 }}>
+            <StepperModeSelect activeStep={activeStep} defaultSettings={settings} updateSettings={setExtensionSettings}/>
+        </Stack>
+    );
+  }
+
   function displayAdbOverWifi() {
-    loadExtensionSettings();
     return (
       <Stack justifyContent="center" alignItems="center" sx={{ m: 2 }}>
-        <SwipeableTextMobileStepper activeStep={activeStep} defaultSettings={settings.current} updateSettings={setExtensionSettings}/>
+        <SwipeableTextMobileStepper activeStep={activeStep} defaultSettings={settings} updateSettings={setExtensionSettings}/>
       </Stack>
+    );
+  }
+
+    function displayAdbConnect() {
+    loadExtensionSettings();
+    return (
+        <Stack justifyContent="center" alignItems="center" sx={{ m: 2 }}>
+            {adbPage === 0 && displayAdbModeSelect()}
+            {adbPage === 1 && displayAdbOverWifi()}
+        </Stack>
     );
   }
 
@@ -1070,69 +1094,129 @@ export default function ConnectionWidget(props: ConnectionProps) {
           <BottomNavigationAction label="ADB-Wireless" icon={<AndroidIcon />} />
         </BottomNavigation>
         <Divider />
-        {tabValue === 0 && displayDeviceOverUSB()}
-        {tabValue === 1 && displayAdbOverWifi()}
+            {tabValue === 0 && displayDeviceOverUSB()}
+            {tabValue === 1 && displayAdbConnect()}
       </Stack>
     );
   }
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        switch (adbPage) {
+            case 0:
+                if (activeStep === 1) {
+                    setAdbPage((prevPage) => prevPage + 1);
+                    setActiveStep(0);
+                    return;
+                }
+                break;
+        }
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+        switch (adbPage) {
+            case 1:
+                if (activeStep === 0) {
+                    setAdbPage((prevPage) => prevPage - 1);
+                    setActiveStep(0);
+                    return;
+                }
+                break;
+        }
+        setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  function ShowControlWifi() {
-    const theme = useTheme();
-    const maxSteps = 7; ////hardcode
+  function ShowControlAdb() {
+        const theme = useTheme();
+        const maxSteps = 6; ////hardcode
 
-    return (
-      <Stack
-        direction="column"
-        justifyContent="space-between"
-        alignItems="stretch"
-        spacing={2}
-        sx={{ width: WIDGET_WIDTH }}
-      >
-        <MobileStepper
-          steps={maxSteps}
-          position="static"
-          activeStep={activeStep}
-          sx={{ bgcolor: "transparent" }}
-          nextButton={
-            <Button
-              size="small"
-              onClick={handleNext}
-              disabled={activeStep === maxSteps - 1}
+        return (
+            <Stack
+                direction="column"
+                justifyContent="space-between"
+                alignItems="stretch"
+                spacing={2}
+                sx={{ width: WIDGET_WIDTH }}
             >
-              Next
+                <MobileStepper
+                    steps={maxSteps}
+                    position="static"
+                    activeStep={activeStep}
+                    sx={{ bgcolor: "transparent" }}
+                    nextButton={
+                        <Button
+                            size="small"
+                            onClick={handleNext}
+                            disabled={activeStep === maxSteps - 1}
+                        >
+                            Next
               {theme.direction === "rtl" ? (
-                <KeyboardArrowLeft />
-              ) : (
-                <KeyboardArrowRight />
-              )}
-            </Button>
-          }
-          backButton={
-            <Button
-              size="small"
-              onClick={handleBack}
-              disabled={activeStep === 0}
-            >
-              {theme.direction === "rtl" ? (
-                <KeyboardArrowRight />
-              ) : (
-                <KeyboardArrowLeft />
-              )}
+                                <KeyboardArrowLeft />
+                            ) : (
+                                    <KeyboardArrowRight />
+                                )}
+                        </Button>
+                    }
+                    backButton={
+                        <Button size="small" onClick={handleBack}>
+                            {theme.direction === "rtl" ? (
+                                <KeyboardArrowRight />
+                            ) : (
+                                    <KeyboardArrowLeft />
+                                )}
               Back
             </Button>
-          }
-        />
-      </Stack>
-    );
-  }
+                    }
+                />
+            </Stack>
+        );
+    }
+
+    function ShowControlMode() {
+        const theme = useTheme();
+        const maxSteps = 2; ////hardcode
+
+        return (
+            <Stack
+                direction="column"
+                justifyContent="space-between"
+                alignItems="stretch"
+                spacing={2}
+                sx={{ width: WIDGET_WIDTH }}
+            >
+                <MobileStepper
+                    steps={maxSteps}
+                    position="static"
+                    activeStep={activeStep}
+                    sx={{ bgcolor: "transparent" }}
+                    nextButton={
+                        <Button size="small" onClick={handleNext}>
+                            Next
+              {theme.direction === "rtl" ? (
+                                <KeyboardArrowLeft />
+                            ) : (
+                                    <KeyboardArrowRight />
+                                )}
+                        </Button>
+                    }
+                    backButton={
+                        <Button
+                            size="small"
+                            onClick={handleBack}
+                            disabled={activeStep === 0}
+                        >
+                            {theme.direction === "rtl" ? (
+                                <KeyboardArrowRight />
+                            ) : (
+                                    <KeyboardArrowLeft />
+                                )}
+              Back
+            </Button>
+                    }
+                />
+            </Stack>
+        );
+    }
 
   function ShowControlGeneral() {
     return (
@@ -1168,8 +1252,9 @@ export default function ConnectionWidget(props: ConnectionProps) {
   function ShowControl() {
     return (
       <Stack direction="row" spacing={4}>
-        {tabValue === 0 && ShowControlGeneral()}
-        {tabValue === 1 && ShowControlWifi()}
+            {tabValue === 0 && ShowControlGeneral()}
+            {tabValue === 1 && adbPage === 0 && ShowControlMode()}
+            {tabValue === 1 && adbPage === 1 && ShowControlAdb()}
       </Stack>
     );
   }

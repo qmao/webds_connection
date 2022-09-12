@@ -148,11 +148,7 @@ export default function WifiSettings() {
     }
   };
 
-  const SendDisconnectToWifi = async (): Promise<string> => {
-	let dataToSend = {
-      "action": "disconnect",
-	}
-
+    const SendWifiPost = async (dataToSend: any): Promise<string> => {
     try {
       const reply = await requestAPI<any>("settings/wifi", {
         body: JSON.stringify(dataToSend),
@@ -165,7 +161,6 @@ export default function WifiSettings() {
       return Promise.reject((e as Error).message);
     }
   };
-
 
   function startWifiInterval() {
       wifiIntervalId.current = setInterval(async () => {
@@ -180,17 +175,26 @@ export default function WifiSettings() {
     }, WIFI_SCAN_INTERVAL);
   };
 
-  async function init(showProgress: boolean) {
+    async function init(showProgress: boolean) {
     if (showProgress)
       setWifiInitDone(false);
-    try {
-      let list = await SendGetWifiList();
-      setWifiList(list);
-      if (showProgress)
-        setWifiInitDone(true);
-    } catch (e) {
+      try {
+          let list = [];
+          for (let i = 0; i < 10; i++) {
+              list = await SendGetWifiList();
+              if (list.length !== 0) {
+                  setWifiList(list);
+                  // send one more time to check connected ssid
+                  list = await SendGetWifiList();
+                  break;
+              }
+          }
+          setWifiList(list);
+        if (showProgress)
+            setWifiInitDone(true);
+      } catch (e) {
       setWifiCurrent("");
-      setWifiList([]);
+          setWifiList([]);
       if (showProgress)
         setWifiInitDone(true);
     }
@@ -254,12 +258,20 @@ export default function WifiSettings() {
     setRootState(newChecked);
 
     if (value === "wifi") {
-      if (currentIndex === -1) {
-        init(true);
-        startWifiInterval();
+        if (currentIndex === -1) {
+            setWifiList([]);
+            SendWifiPost({"action": "turnOn"})
+                .then(async (ret) => {
+                    await init(true);
+                    startWifiInterval();
+                })
+                .catch((e) => {
+                    init(false);
+                })
       }
-      else {
-        destroy();
+        else {
+            destroy();
+            SendWifiPost({"action": "turnOff"})
       }
     }
   };
@@ -298,7 +310,9 @@ export default function WifiSettings() {
       setShowConnectPage(true);
     } else {
       resetParams();
-      SendDisconnectToWifi()
+        SendWifiPost({
+            "action": "disconnect"
+        })
         .then((ret) => {
           init(false);
         })

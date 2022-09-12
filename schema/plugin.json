@@ -23,6 +23,11 @@
       "title": "Pair Port",
       "default": "",
       "type": "string"
+    },
+	"mode": {
+      "title": "Wi-Fi Mode",
+      "default": "AP",
+      "type": "string"
     }
   },
   "additionalProperties": true

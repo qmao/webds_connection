@@ -14,7 +14,6 @@ import {
 import { requestAPI } from "./handler";
 
 import StarRateIcon from "@mui/icons-material/StarRate";
-import WifiSettings from "./wifi";
 
 const TEXT_WIDTH_IP = 350;
 const TEXT_WIDTH_CONNECT_TITLE = 100;
@@ -37,31 +36,6 @@ export default function SwipeableTextMobileStepper(props: any) {
             <div style={{ border: "1px solid" }}>{props.children}</div>
         </Stack>
     );
-
-    useEffect(() => {
-        SendCheckConnection().then((ret) => {
-            setConnected(ret);
-        });
-
-        [...props.defaultSettings].forEach(element => {
-            switch (element.name) {
-                case "ipAddress":
-                    setIpAddress(element.value);
-                    break;
-                case "connectPort":
-                    setConnectPort(element.value);
-                    break;
-                case "pairPort":
-                    setPairPort(element.value);
-                    break;
-                case "pairingCode":
-                    setPairingCode(element.value);
-                    break;
-                default:
-                    break;
-            }
-        })
-    }, []);
 
     const SendCheckConnection = async (): Promise<boolean> => {
         let url = "settings/adb";
@@ -106,14 +80,6 @@ export default function SwipeableTextMobileStepper(props: any) {
         return Promise.resolve(JSON.stringify(reply));
     };
 
-    const onClickEvent = (event: any) => {
-        if (connected) {
-            onClickAdbDisconnect(event);
-        } else {
-            onClickApplyWifiADB(event);
-        }
-    };
-
     const onClickApplyWifiADB = (event: any) => {
         setApplyResult("");
         SendPairConnect()
@@ -150,6 +116,14 @@ export default function SwipeableTextMobileStepper(props: any) {
             });
     };
 
+    const onClickEvent = (event: any) => {
+        if (connected) {
+            onClickAdbDisconnect(event);
+        } else {
+            onClickApplyWifiADB(event);
+        }
+    };
+
     const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         switch (event.target.id) {
             case "ipAddress":
@@ -167,7 +141,11 @@ export default function SwipeableTextMobileStepper(props: any) {
             default:
                 break;
         }
-        props.updateSettings([{ name: event.target.id, value: event.target.value}]);
+        if (props.updateSettings) {
+            props.updateSettings([
+                { name: event.target.id, value: event.target.value }
+            ]);
+        }
     };
 
     function showConnectionSetting(title: string, id: string, value: string) {
@@ -220,8 +198,8 @@ export default function SwipeableTextMobileStepper(props: any) {
         );
     }
 
-    const steps = [
-        {
+    function showStepEnableWirelessDebugging() {
+        return {
             label: "Enable Wireless Debugging",
             content: (
                 <Stack spacing={2}>
@@ -242,8 +220,11 @@ export default function SwipeableTextMobileStepper(props: any) {
                     </ImageArea>
                 </Stack>
             )
-        },
-        {
+        };
+    }
+
+    function showStepGetWiFiDeviceIpAddressAndPort() {
+        return {
             label: "Enable Wireless Debugging",
             content: (
                 <Stack spacing={2}>
@@ -258,8 +239,11 @@ export default function SwipeableTextMobileStepper(props: any) {
                     </ImageArea>
                 </Stack>
             )
-        },
-        {
+        };
+    }
+
+    function showStepGetWiFiDeviceIpAddressAndPortNext() {
+        return {
             label: "Get Wi-Fi Device IP address and port",
             content: (
                 <Stack spacing={2} direction="row">
@@ -280,8 +264,10 @@ export default function SwipeableTextMobileStepper(props: any) {
                                 steps
               </Typography>
                         </div>
-                        <div/>
-                        <Paper variant="outlined" square
+                        <div />
+                        <Paper
+                            variant="outlined"
+                            square
                             sx={{
                                 width: 230,
                                 height: 60,
@@ -320,8 +306,11 @@ export default function SwipeableTextMobileStepper(props: any) {
                     </ImageArea>
                 </Stack>
             )
-        },
-        {
+        };
+    }
+
+    function showStepGetWiFiDeviceParingCode() {
+        return {
             label: "Get Wi-Fi Device Pairing Code",
             content: (
                 <Stack spacing={2}>
@@ -336,8 +325,11 @@ export default function SwipeableTextMobileStepper(props: any) {
                     </ImageArea>
                 </Stack>
             )
-        },
-        {
+        };
+    }
+
+    function showStepGetWiFiDeviceParingCodeInput() {
+        return {
             label: "Get Wi-Fi Device Pairing Code",
             content: (
                 <Stack spacing={2} direction="row">
@@ -356,7 +348,9 @@ export default function SwipeableTextMobileStepper(props: any) {
                             The pairing code, IP address, and port number are required for use
                             in the next steps
             </Typography>
-                        <Paper variant="outlined" square
+                        <Paper
+                            variant="outlined"
+                            square
                             sx={{
                                 width: 230,
                                 height: 200,
@@ -409,21 +403,11 @@ export default function SwipeableTextMobileStepper(props: any) {
                     </ImageArea>
                 </Stack>
             )
-        },
-        {
-            label: "PinormOS Wifi Network",
-            content: (
-                <Stack spacing={2}>
-                    <div>
-                        <Typography sx={{ fontSize: 12 }}>
-                            Check device and PinormOS are on the same Wi-Fi network
-            </Typography>
-                    </div>
-                    <WifiSettings />
-                </Stack>
-            )
-        },
-        {
+        };
+    }
+
+    function showStepRunTheWirelessAdbParingAndDebuggingCommand() {
+        return {
             label: "Run the wireless ADB pairing & debugging Command",
             content: (
                 <Stack spacing={4}>
@@ -468,8 +452,44 @@ export default function SwipeableTextMobileStepper(props: any) {
                     </Button>
                 </Stack>
             )
-        }
+        };
+    }
+
+    const steps = [
+        showStepEnableWirelessDebugging(),
+        showStepGetWiFiDeviceIpAddressAndPort(),
+        showStepGetWiFiDeviceIpAddressAndPortNext(),
+        showStepGetWiFiDeviceParingCode(),
+        showStepGetWiFiDeviceParingCodeInput(),
+        showStepRunTheWirelessAdbParingAndDebuggingCommand()
     ];
+
+    useEffect(() => {
+        SendCheckConnection().then((ret) => {
+            setConnected(ret);
+        });
+
+        if (props.defaultSettings) {
+            [...props.defaultSettings].forEach((element) => {
+                switch (element.name) {
+                    case "ipAddress":
+                        setIpAddress(element.value);
+                        break;
+                    case "connectPort":
+                        setConnectPort(element.value);
+                        break;
+                    case "pairPort":
+                        setPairPort(element.value);
+                        break;
+                    case "pairingCode":
+                        setPairingCode(element.value);
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
+    }, [props.defaultSettings]);
 
     return (
         <Box sx={{ minWidth: 500, flexGrow: 1 }}>
@@ -493,10 +513,10 @@ export default function SwipeableTextMobileStepper(props: any) {
                         spacing={1}
                         sx={{ mt: 2 }}
                     >
-                        <Chip variant="outlined" label={`Step ${props.activeStep + 1}`} />
+                        <Chip variant="outlined" label={`Step 2-${props.activeStep + 1}`} />
                         <Typography>{steps[props.activeStep].label}</Typography>
                     </Stack>
-                    <Stack sx={{ pl: 9 }}>{steps[props.activeStep].content}</Stack>
+                    <Stack sx={{ pl: 10 }}>{steps[props.activeStep].content}</Stack>
                 </Stack>
             </Paper>
         </Box>
