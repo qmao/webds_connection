@@ -138,12 +138,13 @@ export default function StepperModeSelect(props: any) {
                 Connect to wireless network "DSDK" without password
               </Typography>
             </div>
-            {showNoteMessage(
-            " In AP mode, the connected Android device will always be assigned an IP address of 192.168.7.2"
-            )}
             <ImageArea>
               <div className="jp-selectWifiAPImage"></div>
-            </ImageArea>
+              </ImageArea>
+
+              {showNoteMessage(
+                  " In AP mode, the connected Android device will always be assigned an IP address of 192.168.7.2"
+              )}
         </Stack>
       )
     };
