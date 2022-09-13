@@ -71,8 +71,27 @@ export default function WifiSettings() {
   const stopScanWifi = useRef(false);
   const wifiProcessing = useRef(false);
 
+    function enableWifiAsSTA() {
+        setWifiInitDone(false);
+        SendWifiPost({ "action": "turnOn" })
+            .then((ret) => {
+                return SendWifiPost({ "action": "setSTA" })
+            })
+            .then((ret) => {
+                return init(true);
+            })
+            .then((ret) => {
+                setWifiInitDone(true);
+                startWifiInterval();
+            })
+            .catch((e) => {
+                alert(e);
+                setWifiInitDone(true);
+                init(false);
+            })
+    }
 
-  const toggleDrawer = (anchor: Anchor, open: boolean) => (
+    const toggleDrawer = (anchor: Anchor, open: boolean) => async (
     event: React.KeyboardEvent | React.MouseEvent
   ) => {
     if (
@@ -81,11 +100,15 @@ export default function WifiSettings() {
       ((event as React.KeyboardEvent).key === "Tab" ||
         (event as React.KeyboardEvent).key === "Shift")
     ) {
+      destroy();
       return;
     }
-    if (open) {
-      init(true)
-      startWifiInterval();
+        if (open) {
+        // hardcode to set wifi on
+        // fixed to read wifi state from server
+        setRootState(["wifi"])
+
+        enableWifiAsSTA();
     }
     else {
       destroy();
@@ -207,9 +230,10 @@ export default function WifiSettings() {
   }
 
    useEffect(() => {
-       ////SendWifiPost({ "action": "turnOn" }).then((ret) => {
-       ////SendConnectToWifi();
-       ////})
+       return () => {
+         //handle unexpected close
+         destroy();
+       }
   }, []);
 
   function resetParams() {
@@ -262,14 +286,7 @@ export default function WifiSettings() {
     if (value === "wifi") {
         if (currentIndex === -1) {
             setWifiList([]);
-            SendWifiPost({"action": "turnOn"})
-                .then(async (ret) => {
-                    await init(true);
-                    startWifiInterval();
-                })
-                .catch((e) => {
-                    init(false);
-                })
+            enableWifiAsSTA();
       }
         else {
             destroy();

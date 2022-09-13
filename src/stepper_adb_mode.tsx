@@ -7,17 +7,17 @@ import {
   Paper,
   Box,
   FormControl,
-  FormLabel,
   RadioGroup,
   FormControlLabel,
   Radio,
-  LinearProgress
+  CircularProgress
 } from "@mui/material";
 
 import { requestAPI } from "./handler";
 
 import WifiSettings from "./wifi";
 import StarRateIcon from "@mui/icons-material/StarRate";
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const STEP_PAPER_WIDTH = 940;
 const STEP_PAPER_HEIGHT = 380;
@@ -104,16 +104,14 @@ export default function StepperModeSelect(props: any) {
     return {
       label: "Setup Wi-Fi Mode",
       content: (
-        <Stack spacing={2}>
+        <Stack spacing={4}>
           <Typography sx={{ fontSize: 12 }}>
             Configure Wi-Fi as an access point (AP) or as a wireless
             client/station (STA)
           </Typography>
 
-          <FormControl>
-            <FormLabel id="radio-buttons-group">Mode</FormLabel>
+          <FormControl sx={{mt: 6}}>
             <RadioGroup
-              aria-labelledby="radio-buttons-group"
               name="radio-buttons-group"
               value={mode}
               onChange={handleChange}
@@ -131,19 +129,21 @@ export default function StepperModeSelect(props: any) {
     return {
       label: "Pair a device in AP mode",
       content: (
-        <Stack spacing={2}>
-          <Typography sx={{ fontSize: 12 }}>
-            use your Android device and go to Settings -{`>`} Wireless & networks -{`>`} Wi-Fi settings
-          </Typography>
-          <Typography sx={{ fontSize: 12 }}>
-            Connect to wireless network network syna-pi
-          </Typography>
-          {showNoteMessage(
+          <Stack spacing={2}>
+            <div>
+              <Typography sx={{ fontSize: 12 }}>
+                Use the Android device and go to Settings -{`>`} Wireless & networks -{`>`} Wi-Fi settings
+              </Typography>
+              <Typography sx={{ fontSize: 12 }}>
+                Connect to wireless network "DSDK" without password
+              </Typography>
+            </div>
+            {showNoteMessage(
             " In AP mode, the connected Android device will always be assigned an IP address of 192.168.7.2"
-              )}
-          <ImageArea>
-            <div className="jp-enableWifiDebugImage"></div>
-          </ImageArea>
+            )}
+            <ImageArea>
+              <div className="jp-selectWifiAPImage"></div>
+            </ImageArea>
         </Stack>
       )
     };
@@ -171,26 +171,24 @@ export default function StepperModeSelect(props: any) {
     useEffect(() => {
         let ip = "";
         let wifiMode = "";
-          [...props.defaultSettings].forEach((element) => {
-              switch (element.name) {
-                  case "mode":
-                      wifiMode = element.value;
-                      setMode(wifiMode);
-                      break;
-                  case "ipAddress":
-                      ip = element.value;
-                  default:
-                      break;
-              }
-          });
+        [...props.defaultSettings].forEach((element) => {
+            switch (element.name) {
+                case "mode":
+                    wifiMode = element.value;
+                    setMode(wifiMode);
+                    break;
+                case "ipAddress":
+                    ip = element.value;
+                default:
+                    break;
+            }
+        });
 
-          if (wifiMode === "STA") {
-              setStaDefaultAddress(ip);
-          }
-    }, [props.defaultSettings]);
+        if (wifiMode === "STA") {
+            setStaDefaultAddress(ip);
+        }
 
-    useEffect(() => {
-        if (mode === "AP" && props.activeStep === 1) {
+        if (wifiMode === "AP" && props.activeStep === 1) {
             setModeAP(true);
             SendWifiPost({ "action": "setAP" }).then((ret) => {
                 if (ret.includes("Error")) {
@@ -201,8 +199,10 @@ export default function StepperModeSelect(props: any) {
                 alert(e);
                 setModeAP(false);
             })
+        } else {
+            setModeAP(false);
         }
-    }, [props.activeStep]);
+    }, [props.defaultSettings, props.activeStep]);
 
   useEffect(() => {
     if (mode === "AP") {
@@ -236,13 +236,14 @@ export default function StepperModeSelect(props: any) {
           >
             <Chip variant="outlined" label={`Step 1-${props.activeStep + 1}`} />
             <Typography>{steps[props.activeStep].label}</Typography>
+            {
+                (mode === "AP" && props.activeStep === 1) ? 
+                modeAP === true ?
+                  <CircularProgress size="1.5rem" /> : <CheckCircleOutlineIcon sx={{ color: "green", fontSize: 25 }} />
+                    :
+                  <> </>
+            }
           </Stack>
-          {
-            modeAP === true &&
-            <Box sx={{ width: '100%' }}>
-                <LinearProgress />
-            </Box>
-          }
           <Stack sx={{ pl: 10 }}>{steps[props.activeStep].content}</Stack>
         </Stack>
       </Paper>

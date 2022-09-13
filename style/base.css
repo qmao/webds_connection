@@ -32,3 +32,10 @@
   height:731px;
   background-image: url(pairingCode.jpg);
 }
+
+.jp-selectWifiAPImage {
+  background-size: 100%;
+  width:353px;
+  height:435px;
+  background-image: url(selectWifiAP.jpg);
+}
