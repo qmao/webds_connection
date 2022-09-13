@@ -104,7 +104,7 @@ export default function StepperModeSelect(props: any) {
     return {
       label: "Setup Wi-Fi Mode",
       content: (
-        <Stack spacing={2}>
+        <Stack spacing={4}>
           <Typography sx={{ fontSize: 12 }}>
             Configure Wi-Fi as an access point (AP) or as a wireless
             client/station (STA)
@@ -201,6 +201,8 @@ export default function StepperModeSelect(props: any) {
                 alert(e);
                 setModeAP(false);
             })
+        } else {
+            setModeAP(false);
         }
     }, [props.activeStep]);
 
