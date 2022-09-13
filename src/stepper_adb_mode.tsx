@@ -17,7 +17,6 @@ import { requestAPI } from "./handler";
 
 import WifiSettings from "./wifi";
 import StarRateIcon from "@mui/icons-material/StarRate";
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const STEP_PAPER_WIDTH = 940;
 const STEP_PAPER_HEIGHT = 380;
@@ -238,11 +237,9 @@ export default function StepperModeSelect(props: any) {
             <Chip variant="outlined" label={`Step 1-${props.activeStep + 1}`} />
             <Typography>{steps[props.activeStep].label}</Typography>
             {
-                (mode === "AP" && props.activeStep === 1) ? 
-                modeAP === true ?
-                  <CircularProgress size="1.5rem" /> : <CheckCircleOutlineIcon sx={{ color: "green", fontSize: 25 }} />
-                    :
-                  <> </>
+                mode === "AP" && props.activeStep === 1 &&
+                    modeAP === true ?
+                    <CircularProgress size="1.5rem" sx={{px: 2}}/> : <></>
             }
           </Stack>
           <Stack sx={{ pl: 10 }}>{steps[props.activeStep].content}</Stack>
