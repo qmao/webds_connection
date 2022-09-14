@@ -104,7 +104,6 @@ const Post = async (
       body: JSON.stringify(dataToSend),
       method: "POST"
     });
-    //console.log(reply);
     return Promise.resolve(JSON.stringify(reply));
   } catch (e) {
     console.error(`Error on POST ${dataToSend}.\n${e}`);
@@ -389,12 +388,12 @@ export default function ConnectionWidget(props: ConnectionProps) {
                     }
 
                 } catch (reason) {
-                    console.log(`Failed to set settings for ${Attributes.plugin}\n${reason}`);
+                    console.error(`Failed to set settings for ${Attributes.plugin}\n${reason}`);
                 }
                 if (JSON.stringify(temp_settings) !== JSON.stringify(settings)) {
                     setSettings(temp_settings);
                 }
-                console.log(temp_settings);
+                //console.log(temp_settings);
             }
         };
         load();
@@ -408,7 +407,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
                 await settingRegistry.set(Attributes.plugin, item.name, item.value);
             });
         } catch (reason) {
-            console.log(`Failed to set settings for ${Attributes.plugin}\n${reason}`);
+            console.error(`Failed to set settings for ${Attributes.plugin}\n${reason}`);
         }
         loadExtensionSettings();
     }
@@ -420,12 +419,10 @@ export default function ConnectionWidget(props: ConnectionProps) {
   }
 
   useEffect(() => {
-    //console.log("[interfaces]");
     context.interfaces = interfaces;
   }, [interfaces]);
 
   useEffect(() => {
-    //console.log("[protocol]");
     if (protocol == "auto") {
       context.interfaces = interfaces;
       setAddr(I2C_ADDR_AUTO_SCAN);
@@ -435,7 +432,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
     } else {
       context.interfaces = [protocol];
     }
-    //console.log(context.interfaces);
 
     let i2c = false;
     let spi = false;
@@ -581,7 +577,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
       VOLTAGE_GROUP.map((v) => {
         newVoltageUser[v] = voltageSet[hardware]["DEFAULT"][v];
       });
-      //console.log(hardware, voltageUser);
       setVoltageUser(newVoltageUser);
     }
   }, [hardware, voltageSet, voltageUser]);
@@ -617,7 +612,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
   const getJson = async () => {
     const fetchData = async (section: string) => {
       const data = await Get(section);
-      //console.log("data", data);
       return data;
     };
 
@@ -656,7 +650,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
       //json object deep copy
       let jsonMerge = JSON.parse(JSON.stringify(jsonDefault));
       jsonMerge = Object.assign(jsonMerge, jsonCustom);
-      //console.log(jsonMerge);
       //jsonMergeRef.current = jsonMerge;
 
       let jprotocol = jsonMerge["interfaces"];
@@ -743,7 +736,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
   };
 
   const handleVoltageChange = (voltage: string, newValue: string) => {
-    //console.log("handleVoltageChange", voltage, newValue);
     if (newValue == null) return;
     var newVoltageUser = Object.assign({}, voltageUser);
     newVoltageUser[voltage] = newValue;
@@ -824,7 +816,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
         let jobj = JSON.parse(result!);
 
         Object.keys(jobj).forEach((key) => {
-          //console.log(key, jobj[key]);
           list.push(key + " " + jobj[key].toString());
         });
         setInfo(list);
@@ -833,7 +824,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
         setLoad(false);
       })
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         showError(error);
         setLoad(false);
       });

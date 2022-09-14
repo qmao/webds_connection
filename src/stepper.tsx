@@ -97,7 +97,7 @@ export default function SwipeableTextMobileStepper(props: any) {
             })
             .catch((e) => {
                 setApplyResult(e);
-                console.log(e);
+                console.error(e);
             });
     };
 
@@ -112,7 +112,7 @@ export default function SwipeableTextMobileStepper(props: any) {
             })
             .catch((e) => {
                 setApplyResult(e);
-                console.log(e);
+                console.error(e);
             });
     };
 

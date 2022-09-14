@@ -189,7 +189,6 @@ export default function WifiSettings() {
 
   function startWifiInterval() {
       wifiIntervalId.current = setInterval(async () => {
-        console.log(wifiProcessing.current);
         if (stopScanWifi.current) {
             clearInterval(wifiIntervalId.current);
             return;
