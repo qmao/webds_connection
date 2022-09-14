@@ -299,8 +299,10 @@ interface ConnectionProps {
     settingRegistry: ISettingRegistry;
 }
 
+const DEFAULT_CONTROL_STATE = { "back": true, "next": true };
 export default function ConnectionWidget(props: ConnectionProps) {
   const [activeStep, setActiveStep] = useState(0);
+  const [controlState, setControlState] = useState(DEFAULT_CONTROL_STATE);
 
   const [interfaces, setInterfaces] = React.useState([]);
   const [defaultJson, setDefaultJson] = React.useState("");
@@ -408,8 +410,14 @@ export default function ConnectionWidget(props: ConnectionProps) {
         } catch (reason) {
             console.log(`Failed to set settings for ${Attributes.plugin}\n${reason}`);
         }
+        loadExtensionSettings();
     }
   };
+
+  const handleControlState = (controls: any) => {
+      let returnedTarget = Object.assign({}, controlState, controls);
+      setControlState(returnedTarget);
+  }
 
   useEffect(() => {
     //console.log("[interfaces]");
@@ -769,7 +777,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     else if (protocol == "spi") context.speed = speedSpi;
   }
 
-  function LoadVoltageSets() {
+  function loadVoltageSets() {
     //Fixme
     setHardwareList(Object.keys(VOLTAGE_SET));
     powerJson.current = VOLTAGE_SET;
@@ -801,7 +809,8 @@ export default function ConnectionWidget(props: ConnectionProps) {
 
   useEffect(() => {
     getJson();
-      LoadVoltageSets();
+    loadVoltageSets();
+    loadExtensionSettings();
   }, []);
 
   function UpdateSettings() {
@@ -886,7 +895,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
   function displayAdbModeSelect() {
     return (
         <Stack justifyContent="center" alignItems="center" sx={{ m: 2 }}>
-            <StepperModeSelect activeStep={activeStep} defaultSettings={settings} updateSettings={setExtensionSettings}/>
+            <StepperModeSelect activeStep={activeStep} defaultSettings={settings} updateSettings={setExtensionSettings} updateControlState={handleControlState}/>
         </Stack>
     );
   }
@@ -899,8 +908,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     );
   }
 
-    function displayAdbConnect() {
-    loadExtensionSettings();
+  function displayAdbConnect() {
     return (
         <Stack justifyContent="center" alignItems="center" sx={{ m: 2 }}>
             {adbPage === 0 && displayAdbModeSelect()}
@@ -1101,6 +1109,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
   }
 
   const handleNext = () => {
+      setControlState(DEFAULT_CONTROL_STATE);
         switch (adbPage) {
             case 0:
                 if (activeStep === 1) {
@@ -1114,6 +1123,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
   };
 
   const handleBack = () => {
+        setControlState(DEFAULT_CONTROL_STATE);
         switch (adbPage) {
             case 1:
                 if (activeStep === 0) {
@@ -1147,7 +1157,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
                         <Button
                             size="small"
                             onClick={handleNext}
-                            disabled={activeStep === maxSteps - 1}
+                            disabled={ (activeStep === maxSteps - 1) || (controlState["next"] === false)}
                         >
                             Next
               {theme.direction === "rtl" ? (
@@ -1158,7 +1168,9 @@ export default function ConnectionWidget(props: ConnectionProps) {
                         </Button>
                     }
                     backButton={
-                        <Button size="small" onClick={handleBack}>
+                        <Button size="small"
+                            disabled={controlState["back"] === false}
+                            onClick={handleBack}>
                             {theme.direction === "rtl" ? (
                                 <KeyboardArrowRight />
                             ) : (
@@ -1190,7 +1202,9 @@ export default function ConnectionWidget(props: ConnectionProps) {
                     activeStep={activeStep}
                     sx={{ bgcolor: "transparent" }}
                     nextButton={
-                        <Button size="small" onClick={handleNext}>
+                        <Button size="small"
+                            disabled={ controlState["next"] === false }
+                            onClick={handleNext}>
                             Next
               {theme.direction === "rtl" ? (
                                 <KeyboardArrowLeft />
@@ -1203,7 +1217,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
                         <Button
                             size="small"
                             onClick={handleBack}
-                            disabled={activeStep === 0}
+                            disabled={ (activeStep === 0) || (controlState["back"] === false)}
                         >
                             {theme.direction === "rtl" ? (
                                 <KeyboardArrowRight />

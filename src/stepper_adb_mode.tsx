@@ -58,22 +58,6 @@ export default function StepperModeSelect(props: any) {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setMode((event.target as HTMLInputElement).value);
-
-      if (props.updateSettings) {
-          props.updateSettings([
-              { name: "mode", value: event.target.value }
-          ]);
-
-          if (event.target.value === "AP") {
-              props.updateSettings([
-                  { name: "ipAddress", value: "192.168.7.2" }
-              ]);
-          } else {
-              props.updateSettings([
-                  { name: "ipAddress", value: staDefaultAddress }
-              ]);
-          }
-      }
   };
 
   function showNoteMessage(m: string) {
@@ -197,12 +181,16 @@ export default function StepperModeSelect(props: any) {
         }
 
         if (wifiMode === "AP" && props.activeStep === 1) {
+            props.updateControlState({ "next": false });
             setModeAP(true);
             SendWifiPost({ "action": "setAP" }).then((ret) => {
+                setModeAP(false);
                 if (ret.includes("Error")) {
                     alert(ret);
                 }
-                setModeAP(false);
+                else {
+                    props.updateControlState({ "next": true });
+                }
             }).catch((e) => {
                 alert(e);
                 setModeAP(false);
@@ -213,6 +201,22 @@ export default function StepperModeSelect(props: any) {
     }, [props.defaultSettings, props.activeStep]);
 
   useEffect(() => {
+    if (props.updateSettings) {
+        props.updateSettings([
+            { name: "mode", value: mode }
+        ]);
+
+        if (mode === "AP") {
+            props.updateSettings([
+                { name: "ipAddress", value: "192.168.7.2" }
+            ]);
+        } else {
+            props.updateSettings([
+                { name: "ipAddress", value: staDefaultAddress }
+            ]);
+        }
+    }
+
     if (mode === "AP") {
       setSteps(stepsAP);
     } else if (mode === "STA") {
