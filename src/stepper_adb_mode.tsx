@@ -176,25 +176,35 @@ export default function StepperModeSelect(props: any) {
             }
         });
 
-        if (wifiMode === "STA") {
-            setStaDefaultAddress(ip);
-        }
-
-        if (wifiMode === "AP" && props.activeStep === 1) {
+        async function configWifi() {
+            let ret;
             props.updateControlState({ "next": false });
             setModeAP(true);
-            SendWifiPost({ "action": "setAP" }).then((ret) => {
-                setModeAP(false);
+
+            try {
+                if (wifiMode === "AP") {
+                    ret = await SendWifiPost({ "action": "setAP" });
+                }
+                else if (wifiMode === "STA") {
+                    ret = await SendWifiPost({ "action": "setSTA" });
+                    setStaDefaultAddress(ip);
+                }
+
                 if (ret.includes("Error")) {
                     alert(ret);
                 }
                 else {
                     props.updateControlState({ "next": true });
                 }
-            }).catch((e) => {
+            }
+            catch (e) {
                 alert(e);
-                setModeAP(false);
-            })
+            }
+            setModeAP(false);
+        }
+
+        if (props.activeStep === 1) {
+            configWifi();
         } else {
             setModeAP(false);
         }
@@ -249,7 +259,7 @@ export default function StepperModeSelect(props: any) {
             <Chip variant="outlined" label={`Step 1-${props.activeStep + 1}`} />
             <Typography>{steps[props.activeStep].label}</Typography>
             {
-                mode === "AP" && props.activeStep === 1 &&
+                props.activeStep === 1 &&
                     modeAP === true ?
                     <CircularProgress size="1.5rem" sx={{px: 2}}/> : <></>
             }
