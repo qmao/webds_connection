@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 
 import {
   Stack,
@@ -103,11 +103,19 @@ export default function StepperModeSelect(props: any) {
     return {
       label: "Setup Wi-Fi Mode",
       content: (
-        <Stack spacing={4}>
-          <Typography sx={{ fontSize: 12 }}>
-            Configure Wi-Fi as an access point (AP) or as a wireless
-            client/station (STA)
-          </Typography>
+          <Stack spacing={4}>
+            <div>
+              <Typography sx={{ fontSize: 12 }}>
+                Configure Wi-Fi as an access point (AP) or as a wireless
+                client/station (STA)
+              </Typography>
+                <Typography sx={{ fontSize: 12 }}>
+                          ●   Select AP mode for direct connection from the Android phone to the DSDK
+                </Typography>
+              <Typography sx={{ fontSize: 12 }}>
+                          ●   Select STA mode for connecting the Android phone and the DSDK to a common Wi-Fi router
+              </Typography>
+            </div>
 
           <FormControl sx={{mt: 6}}>
             <RadioGroup
