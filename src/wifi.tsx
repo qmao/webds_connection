@@ -68,8 +68,9 @@ export default function WifiSettings() {
     showPassword: false
   });
   const wifiIntervalId = useRef(null);
-  const stopScanWifi = useRef(false);
+  const pauseScanWifi = useRef(false);
   const wifiProcessing = useRef(false);
+  const stopScanWifi = useRef(false);
 
     function enableWifiAsSTA() {
         setWifiInitDone(false);
@@ -107,7 +108,7 @@ export default function WifiSettings() {
         // hardcode to set wifi on
         // fixed to read wifi state from server
         setRootState(["wifi"])
-
+        stopScanWifi.current = false;
         enableWifiAsSTA();
     }
     else {
@@ -117,10 +118,10 @@ export default function WifiSettings() {
   };
 
   useEffect(() => {
-    stopScanWifi.current = showConnectPage || showConnectButton;
+      pauseScanWifi.current = showConnectPage || showConnectButton;
   }, [showConnectPage, showConnectButton]);
 
-  const SendGetWifiList = async (): Promise<wifiElement[]> => {
+    const SendGetWifiList = async (): Promise<wifiElement[]> => {
     try {
       let url = "settings/wifi";
 
@@ -141,7 +142,6 @@ export default function WifiSettings() {
       } else {
         setWifiCurrent("");
       }
-
       return Promise.resolve(wifi_list);
     } catch (e) {
       console.error(`Error on GET.\n${e}`);
@@ -161,6 +161,7 @@ export default function WifiSettings() {
         body: JSON.stringify(dataToSend),
         method: "POST"
       });
+
 	  if (reply["status"] === true)
         return Promise.resolve(JSON.stringify(reply));
       else
@@ -177,6 +178,7 @@ export default function WifiSettings() {
         body: JSON.stringify(dataToSend),
         method: "POST"
       });
+
       return Promise.resolve(JSON.stringify(reply));
 
     } catch (e) {
@@ -188,11 +190,15 @@ export default function WifiSettings() {
   function startWifiInterval() {
       wifiIntervalId.current = setInterval(async () => {
         console.log(wifiProcessing.current);
-        if (stopScanWifi.current || wifiProcessing.current) {
+        if (stopScanWifi.current) {
+            clearInterval(wifiIntervalId.current);
+            return;
+        }
+        if (pauseScanWifi.current || wifiProcessing.current) {
         }
         else {
-          wifiProcessing.current = true;
-          await init(false);
+            wifiProcessing.current = true;
+            await init(false);
           wifiProcessing.current = false;
       }
     }, WIFI_SCAN_INTERVAL);
@@ -201,7 +207,7 @@ export default function WifiSettings() {
     async function init(showProgress: boolean) {
     if (showProgress)
       setWifiInitDone(false);
-      try {
+        try {
           let list = [];
           for (let i = 0; i < 10; i++) {
               list = await SendGetWifiList();
@@ -211,7 +217,8 @@ export default function WifiSettings() {
                   list = await SendGetWifiList();
                   break;
               }
-          }
+            }
+
           setWifiList(list);
         if (showProgress)
             setWifiInitDone(true);
@@ -226,6 +233,7 @@ export default function WifiSettings() {
   function destroy() {
     resetParams();
     setWifiProgress(false);
+    stopScanWifi.current = true;
     clearInterval(wifiIntervalId.current);
   }
 
