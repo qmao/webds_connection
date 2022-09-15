@@ -357,19 +357,18 @@ export default function ConnectionWidget(props: ConnectionProps) {
   }
 
   const [settings, setSettings] = React.useState<ISettingElement[]>([]);
-  const powerJson = useRef({});
-
-  const context = {
-    interfaces: ["i2c"],
-    i2cAddr: 128,
-    spiMode: -1,
-    speed: null,
-    useAttn: false,
-    vdd: 1800,
-    vddtx: 1200,
-    vled: 3300,
-    vpu: 1800
-  };
+    const powerJson = useRef({});
+    const context = useRef( {
+        interfaces: ["i2c"],
+        i2cAddr: 128,
+        spiMode: -1,
+        speed: null,
+        useAttn: false,
+        vdd: 1800,
+        vddtx: 1200,
+        vled: 3300,
+        vpu: 1800
+    });
 
     const loadExtensionSettings = () => {
         const settingList = ["ipAddress", "connectPort", "mode"];
@@ -419,18 +418,18 @@ export default function ConnectionWidget(props: ConnectionProps) {
   }
 
   useEffect(() => {
-    context.interfaces = interfaces;
+    context.current.interfaces = interfaces;
   }, [interfaces]);
 
   useEffect(() => {
     if (protocol == "auto") {
-      context.interfaces = interfaces;
+        context.current.interfaces = interfaces;
       setAddr(I2C_ADDR_AUTO_SCAN);
       setMode(SPI_MODE_AUTO_SCAN);
       setSpeedI2c(DEFAULT_SPEED_I2C);
       setSpeedSpi(DEFAULT_SPEED_SPI);
     } else {
-      context.interfaces = [protocol];
+        context.current.interfaces = [protocol];
     }
 
     let i2c = false;
@@ -451,12 +450,12 @@ export default function ConnectionWidget(props: ConnectionProps) {
   }, [protocol]);
 
   useEffect(() => {
-    context.spiMode = Number(mode);
+      context.current.spiMode = Number(mode);
   }, [mode]);
 
   useEffect(() => {
-    if (attn === 0) context.useAttn = false;
-    else if (attn === 1) context.useAttn = true;
+      if (attn === 0) context.current.useAttn = false;
+      else if (attn === 1) context.current.useAttn = true;
   }, [attn]);
 
   useEffect(() => {
@@ -467,7 +466,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     } else {
       if (num > 128) setAddr("128");
       else if (num < 0) setAddr("0");
-      context.i2cAddr = num;
+        context.current.i2cAddr = num;
 
       setAddrError(false);
     }
@@ -501,7 +500,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     } else {
       if (num > 4000) setVdd("4000");
       else if (num < 0) setVdd("0");
-      context.vdd = num;
+        context.current.vdd = num;
       setVddError(false);
     }
   }, [vdd]);
@@ -514,7 +513,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     } else {
       if (num > 4000) setVddtx("4000");
       else if (num < 0) setVddtx("0");
-      context.vddtx = num;
+        context.current.vddtx = num;
       setVddtxError(false);
     }
   }, [vddtx]);
@@ -527,7 +526,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     } else {
       if (num > 4000) setVled("4000");
       else if (num < 0) setVled("0");
-      context.vled = num;
+        context.current.vled = num;
       setVledError(false);
     }
   }, [vled]);
@@ -540,7 +539,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     } else {
       if (num > 4000) setVpu("4000");
       else if (num < 0) setVpu("0");
-      context.vpu = num;
+        context.current.vpu = num;
       setVpuError(false);
     }
   }, [vpu]);
@@ -764,9 +763,9 @@ export default function ConnectionWidget(props: ConnectionProps) {
   }
 
   function SetSpeed() {
-    if (protocol == "auto") context.speed = SPEED_AUTO_SCAN;
-    else if (protocol == "i2c") context.speed = speedI2c;
-    else if (protocol == "spi") context.speed = speedSpi;
+      if (protocol == "auto") context.current.speed = SPEED_AUTO_SCAN;
+      else if (protocol == "i2c") context.current.speed = speedI2c;
+      else if (protocol == "spi") context.current.speed = speedSpi;
   }
 
   function loadVoltageSets() {
@@ -810,7 +809,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     setAlert(false);
     SetSpeed();
 
-    Post({ action: "update", value: context })
+      Post({ action: "update", value: context.current })
       .then((result) => {
         let list: string[] = [];
         let jobj = JSON.parse(result!);
