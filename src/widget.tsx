@@ -17,7 +17,6 @@ import {
   Alert,
   AlertTitle,
   Chip,
-  Backdrop,
   ToggleButtonGroup,
   ToggleButton,
   CircularProgress,
@@ -1064,6 +1063,18 @@ export default function ConnectionWidget(props: ConnectionProps) {
       </Stack>
     );
   }
+
+  function ShowLoading() {
+        return (
+            <Stack
+                justifyContent="center"
+                alignItems="center"
+            >
+                <CircularProgress color="primary" />
+            </Stack>
+          );
+  }
+
   function ShowContent() {
     return (
       <Stack>
@@ -1084,9 +1095,11 @@ export default function ConnectionWidget(props: ConnectionProps) {
           showLabels
           value={tabValue}
           onChange={(event, newValue) => {
+            if (load) return;
             setTabValue(newValue);
           }}
           sx={{ bgcolor: "transparent" }}
+
         >
           <BottomNavigationAction label="General" icon={<UsbIcon />} />
           <BottomNavigationAction label="ADB-Wireless" icon={<AndroidIcon />} />
@@ -1253,12 +1266,27 @@ export default function ConnectionWidget(props: ConnectionProps) {
       </>
     );
   }
+
+  function showControlSection() {
+      if (load) {
+          return ShowLoading();
+      }
+      if (tabValue === 0) {
+          return ShowControlGeneral();
+      }
+      if (tabValue === 1 && adbPage === 0) {
+          return ShowControlMode();
+      }
+      if (tabValue === 1 && adbPage === 1) {
+          return ShowControlAdb();
+      }
+      return <></>
+  }
+
   function ShowControl() {
     return (
       <Stack direction="row" spacing={4}>
-            {tabValue === 0 && ShowControlGeneral()}
-            {tabValue === 1 && adbPage === 0 && ShowControlMode()}
-            {tabValue === 1 && adbPage === 1 && ShowControlAdb()}
+        {showControlSection()}
       </Stack>
     );
   }
@@ -1310,7 +1338,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
             bgcolor: "section.main"
           }}
         >
-          {ShowControl()}
+         {ShowControl()}
         </Stack>
       </Stack>
     );
@@ -1322,14 +1350,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
     <div className="jp-webds-widget-body">
       <ThemeProvider theme={webdsTheme}>
         {showAll()}
-        <div>
-          <Backdrop
-            sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-            open={load}
-          >
-            <CircularProgress color="inherit" />
-          </Backdrop>
-        </div>
       </ThemeProvider>
     </div>
   );
