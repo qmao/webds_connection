@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useRef } from "react";
 
-import Box from "@mui/material/Box";
-import SwipeableDrawer from "@mui/material/SwipeableDrawer";
-import Button from "@mui/material/Button";
-import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Switch from "@mui/material/Switch";
-import Collapse from "@mui/material/Collapse";
+
+import {
+    Paper, Collapse, Switch, ListItemText,
+    ListItemIcon,
+    ListItemButton,
+    ListItem,
+    Divider,
+    List,
+    Button,
+    SwipeableDrawer,
+    Box
+} from "@mui/material";
 
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -416,7 +417,7 @@ export default function WifiSettings() {
   }
   function displayConnectPage(index) {
     return (
-      <Stack key={`page-stack-root--${index}`} sx={{ bgcolor: "grey" }}>
+        <Paper key={`page-paper-root--${index}`} sx={{p: 1}}>
         {wifiProgress ? (
           <LinearProgress key={`page-progress-${index}`} sx={{ m: 3 }} />
         ) : (
@@ -450,7 +451,7 @@ export default function WifiSettings() {
             </Stack>
           </Stack>
         )}
-      </Stack>
+      </Paper>
     );
   }
 

@@ -5,6 +5,10 @@ import { requestAPI } from "./handler";
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { Attributes } from "./constant";
 
+import { Canvas } from "./widget/mui_extensions/Canvas";
+import { Content } from "./widget/mui_extensions/Content";
+import { Controls } from "./widget/mui_extensions/Controls";
+
 import {
   MenuItem,
   Stack,
@@ -56,9 +60,6 @@ const DEFAULT_POWER_VLED = "3300";
 const DEFAULT_POWER_VPU = "1800";
 const DEFAULT_SPEED_I2C = "1000";
 const DEFAULT_SPEED_SPI = "15000";
-const HEIGHT_CONTROLS = 100;
-const WIDGET_WIDTH = 1000;
-const HEIGHT_TITLE = 70;
 
 const VOLTAGE_GROUP = ["VDDL", "VDDH", "VDD12", "VBUS"];
 const VOLTAGE_SET = {
@@ -1149,7 +1150,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
                 justifyContent="space-between"
                 alignItems="stretch"
                 spacing={2}
-                sx={{ width: WIDGET_WIDTH }}
+                sx={{ width: 1000 }}
             >
                 <MobileStepper
                     steps={maxSteps}
@@ -1197,7 +1198,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
                 justifyContent="space-between"
                 alignItems="stretch"
                 spacing={2}
-                sx={{ width: WIDGET_WIDTH }}
+                sx={{ width: 1000 }}
             >
                 <MobileStepper
                     steps={maxSteps}
@@ -1292,55 +1293,22 @@ export default function ConnectionWidget(props: ConnectionProps) {
   }
 
   function showAll() {
-    return (
-      <Stack spacing={2}>
-        <Paper
-          elevation={0}
-          sx={{
-            width: WIDGET_WIDTH + "px",
-            height: HEIGHT_TITLE + "px",
-            position: "relative",
-            bgcolor: "section.main"
-          }}
-        >
-          <Typography
-            variant="h5"
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)"
-            }}
+      return (
+        <Canvas title="Connection" sx={{ width: 1000 }}>
+          <Content>
+            {ShowContent()}
+          </Content>
+          <Controls
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}
           >
-            Connection
-          </Typography>
-        </Paper>
-
-        <Stack
-          direction="column"
-          justifyContent="center"
-          alignItems="stretch"
-          sx={{
-            width: WIDGET_WIDTH + "px",
-            bgcolor: "section.main"
-          }}
-        >
-          {ShowContent()}
-        </Stack>
-
-        <Stack
-          direction="row"
-          justifyContent="center"
-          alignItems="center"
-          sx={{
-            width: WIDGET_WIDTH + "px",
-            minHeight: HEIGHT_CONTROLS + "px",
-            bgcolor: "section.main"
-          }}
-        >
-         {ShowControl()}
-        </Stack>
-      </Stack>
+            {ShowControl()}
+          </Controls>
+        </Canvas>
     );
   }
 
