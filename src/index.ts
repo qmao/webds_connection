@@ -23,15 +23,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: Attributes.plugin,
   autoStart: true,
   requires: [ILauncher, ILayoutRestorer, ISettingRegistry, WebDSService],
-  activate: async (
+  activate: (
     app: JupyterFrontEnd,
     launcher: ILauncher,
     restorer: ILayoutRestorer,
     settingRegistry: ISettingRegistry | null,
     service: WebDSService ) => {
     console.log('JupyterLab extension ${Attributes.label} is activated!');
-
-    await service.initialized;
 
     let widget: WebDSWidget;
     const { commands, shell } = app;

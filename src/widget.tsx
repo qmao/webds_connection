@@ -1343,12 +1343,8 @@ export class ShellWidget extends ReactWidget {
 
     render(): JSX.Element {
         return (
-          <div id={this.id + "_container"} className="jp-webds-widget-container">
-            <div id={this.id + "_content"} className="jp-webds-widget">
+          <div id={this.id + "_component"}>
               <ConnectionWidget service={this.service} settingRegistry={this.settingRegistry}/>
-            </div>
-            <div className="jp-webds-widget-shadow jp-webds-widget-shadow-top"></div>
-            <div className="jp-webds-widget-shadow jp-webds-widget-shadow-bottom"></div>
           </div>
         );
     }
