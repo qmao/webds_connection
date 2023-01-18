@@ -16,6 +16,9 @@ import { ISettingRegistry } from '@jupyterlab/settingregistry';
 
 import { Attributes } from "./constant";
 
+export let webdsService: WebDSService;
+export let settingRegistry: ISettingRegistry;
+
 /**
  * Initialization data for the reprogram extension.
  */
@@ -27,9 +30,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app: JupyterFrontEnd,
     launcher: ILauncher,
     restorer: ILayoutRestorer,
-    settingRegistry: ISettingRegistry | null,
+    settings: ISettingRegistry,
     service: WebDSService ) => {
     console.log('JupyterLab extension ${Attributes.label} is activated!');
+
+	webdsService = service;
+	settingRegistry = settings;
 
     let widget: WebDSWidget;
     const { commands, shell } = app;
@@ -41,7 +47,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 	  icon: Attributes.icon,
       execute: () => {
         if (!widget || widget.isDisposed) {
-          let content = new ShellWidget(Attributes.id, service, settingRegistry);
+          let content = new ShellWidget(Attributes.id);
 
           widget = new WebDSWidget<ShellWidget>({ content });
           widget.id = Attributes.id;

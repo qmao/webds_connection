@@ -1,8 +1,7 @@
 import { ReactWidget } from "@jupyterlab/apputils";
 import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "@mui/material/styles";
-import { requestAPI } from "./handler";
-import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { requestAPI, webdsService, settingRegistry} from './local_exports';
 import { Attributes } from "./constant";
 
 import { Canvas } from "./widget/mui_extensions/Canvas";
@@ -35,8 +34,6 @@ import SwipeableTextMobileStepper from "./stepper";
 import StepperModeSelect from "./stepper_adb_mode";
 
 import { ThemeProvider } from "@mui/material/styles";
-
-import { WebDSService } from "@webds/service";
 
 import UsbIcon from "@mui/icons-material/Usb";
 import AndroidIcon from "@mui/icons-material/Android";
@@ -294,8 +291,6 @@ function SelectPower(props: {
 type SeverityType = "error" | "info" | "success" | "warning";
 
 interface ConnectionProps {
-    service: WebDSService;
-    settingRegistry: ISettingRegistry;
 }
 
 const DEFAULT_CONTROL_STATE = { "back": true, "next": true };
@@ -375,7 +370,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
 
         async function load() {
             let temp_settings = [];
-            var settingRegistry: ISettingRegistry = props.settingRegistry;
             if (settingRegistry) {
                 try {
                     var s = await settingRegistry.load(Attributes.plugin);
@@ -399,7 +393,6 @@ export default function ConnectionWidget(props: ConnectionProps) {
   };
 
   const setExtensionSettings = (elements: ISettingElement[]) => {
-    var settingRegistry: ISettingRegistry = props.settingRegistry;
     if (settingRegistry) {
         try {
             elements.forEach(async function (item) {
@@ -1312,7 +1305,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     );
   }
 
-  const webdsTheme = props.service.ui.getWebDSTheme();
+  const webdsTheme = webdsService.ui.getWebDSTheme();
   
   return (
     <div className="jp-webds-widget-body">
@@ -1329,22 +1322,18 @@ export default function ConnectionWidget(props: ConnectionProps) {
 */
 export class ShellWidget extends ReactWidget {
     id: string;
-    service: WebDSService;
-    settingRegistry: ISettingRegistry | null = null;
     /**
     * Constructs a new CounterWidget.
     */
-    constructor(id: string, service: WebDSService, settingRegistry: ISettingRegistry) {
+    constructor(id: string) {
         super();
         this.id = id;
-        this.service = service;
-        this.settingRegistry = settingRegistry || null;
     }
 
     render(): JSX.Element {
         return (
           <div id={this.id + "_component"}>
-              <ConnectionWidget service={this.service} settingRegistry={this.settingRegistry}/>
+              <ConnectionWidget/>
           </div>
         );
     }
