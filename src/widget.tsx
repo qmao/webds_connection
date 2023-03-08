@@ -608,7 +608,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     };
 
     try {
-      let debug_ui = true;
+      let debug_ui = false;
       let jsonDefaultString = "";
       let jsonCustomString = "";
       if (debug_ui) {
