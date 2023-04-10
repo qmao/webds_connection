@@ -49,7 +49,7 @@ const VOLTAGE_CONTENT_WIDTH = 58;
 const VOLTAGE_TITLE_WIDTH = 65;
 const VOLTAGE_GROUP_WIDTH = 240;
 const SPEED_AUTO_SCAN = null;
-const I2C_ADDR_AUTO_SCAN = "128";
+const I2C_ADDR_AUTO_SCAN = "";
 const SPI_MODE_AUTO_SCAN = -1;
 const DEFAULT_POWER_VDD = "1800";
 const DEFAULT_POWER_VDDTX = "1200";
@@ -202,6 +202,7 @@ function SelectI2cAddr(props: {
       </Typography>
 
       <TextField
+              placeholder="Auto"
         id="filled-basic"
         value={props.addr}
         onChange={props.handleChange}
@@ -306,9 +307,9 @@ export default function ConnectionWidget(props: ConnectionProps) {
   const [isPhone, setPhone] = React.useState(false);
   const [showProtocol, setShowProtocol] = React.useState(false);
 
-  const [mode, setMode] = React.useState<string | number>(-1);
+  const [mode, setMode] = React.useState<string | number>(SPI_MODE_AUTO_SCAN);
   const [attn, setAttn] = React.useState<string | number>(0);
-  const [addr, setAddr] = React.useState<string>("30");
+    const [addr, setAddr] = React.useState<string>(I2C_ADDR_AUTO_SCAN);
 
   const [power, setPower] = React.useState("Default");
   const [vdd, setVdd] = React.useState<string>(DEFAULT_POWER_VDD);
@@ -355,8 +356,8 @@ export default function ConnectionWidget(props: ConnectionProps) {
     const powerJson = useRef({});
     const context = useRef( {
         interfaces: ["i2c"],
-        i2cAddr: 128,
-        spiMode: -1,
+        i2cAddr: null,
+        spiMode: SPI_MODE_AUTO_SCAN,
         speed: null,
         useAttn: false,
         vdd: 1800,
@@ -417,7 +418,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
   useEffect(() => {
     if (protocol == "auto") {
         context.current.interfaces = interfaces;
-      setAddr(I2C_ADDR_AUTO_SCAN);
+        setAddr(I2C_ADDR_AUTO_SCAN);
       setMode(SPI_MODE_AUTO_SCAN);
       setSpeedI2c(DEFAULT_SPEED_I2C);
       setSpeedSpi(DEFAULT_SPEED_SPI);
@@ -442,8 +443,13 @@ export default function ConnectionWidget(props: ConnectionProps) {
     setShowProtocol(i2c || spi);
   }, [protocol]);
 
-  useEffect(() => {
-      context.current.spiMode = Number(mode);
+    useEffect(() => {
+        if (mode === SPI_MODE_AUTO_SCAN) {
+            context.current.spiMode = null;
+        }
+        else {
+            context.current.spiMode = Number(mode);
+        }
   }, [mode]);
 
   useEffect(() => {
@@ -451,18 +457,23 @@ export default function ConnectionWidget(props: ConnectionProps) {
       else if (attn === 1) context.current.useAttn = true;
   }, [attn]);
 
-  useEffect(() => {
-    let num = parseInt(addr);
+    useEffect(() => {
+        if (addr === I2C_ADDR_AUTO_SCAN) {
+            context.current.i2cAddr = null;
+            setAddrError(false);
+        }
+        else {
+            let num = parseInt(addr);
+            if (isNaN(num) || isNaN(Number(addr))) {
+                setAddrError(true);
+            } else {
+                if (num > 128) setAddr("128");
+                else if (num < 0) setAddr("0");
+                context.current.i2cAddr = num;
 
-    if (isNaN(num) || isNaN(Number(addr))) {
-      setAddrError(true);
-    } else {
-      if (num > 128) setAddr("128");
-      else if (num < 0) setAddr("0");
-        context.current.i2cAddr = num;
-
-      setAddrError(false);
-    }
+                setAddrError(false);
+            }
+        }
   }, [addr]);
 
   useEffect(() => {
@@ -607,15 +618,15 @@ export default function ConnectionWidget(props: ConnectionProps) {
       return data;
     };
 
-    try {
+      try {
       let debug_ui = false;
       let jsonDefaultString = "";
       let jsonCustomString = "";
       if (debug_ui) {
         let data = {
           interfaces: ["i2c", "spi", "phone"],
-          i2cAddr: 128,
-          spiMode: -1,
+          i2cAddr: null,
+          spiMode: SPI_MODE_AUTO_SCAN,
           speed: null,
           useAttn: false,
           vdd: 1800,
@@ -629,7 +640,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
         let data = await fetchData("default");
         jsonDefaultString = JSON.stringify(data);
         data = await fetchData("custom");
-        jsonCustomString = JSON.stringify(data);
+          jsonCustomString = JSON.stringify(data);
       }
       let jsonDefault = JSON.parse(jsonDefaultString);
       setDefaultJson(jsonDefaultString);
@@ -669,8 +680,19 @@ export default function ConnectionWidget(props: ConnectionProps) {
         }
       }
 
-      setAddr(ji2cAddr.toString());
-      setMode(jspiMode);
+          if (ji2cAddr === null) {
+              setAddr(I2C_ADDR_AUTO_SCAN);
+          }
+          else {
+              setAddr(ji2cAddr.toString());
+          }
+
+        if (jspiMode === null) {
+            setMode(SPI_MODE_AUTO_SCAN);
+        }
+        else {
+            setMode(jspiMode);
+        }
 
       if (jattn) setAttn(1);
       else setAttn(0);
@@ -701,7 +723,7 @@ export default function ConnectionWidget(props: ConnectionProps) {
     setPower(event.target.value);
   };
 
-  const handleSpiModeChange = (event: SelectChangeEvent) => {
+    const handleSpiModeChange = (event: SelectChangeEvent) => {
     setMode(event.target.value);
   };
 
